@@ -78,15 +78,17 @@ if [ "$JDBC_DRIVER_URI" != "" ]; then
     done
 fi
 
-# copy jars mounted in the /opt/pega/lib directory of container to ${CATALINA_HOME}/lib
-for srcfile in ${lib_root}/*
-do
-    filename=$(basename "$srcfile")
-    ext="${filename##*.}"
-    if [ "$ext" = "jar" ]; then
-      \cp $srcfile "${CATALINA_HOME}/lib/"
-    fi
-done
+# For JBoss, lib files shold be done throught JBoss Modules
+#
+# # copy jars mounted in the /opt/pega/lib directory of container to ${CATALINA_HOME}/lib
+# for srcfile in ${lib_root}/*
+# do
+#     filename=$(basename "$srcfile")
+#     ext="${filename##*.}"
+#     if [ "$ext" = "jar" ]; then
+#       \cp $srcfile "${CATALINA_HOME}/lib/"
+#     fi
+# done
 
 echo "Using JDBC_URL: ${JDBC_URL}"
 
@@ -166,69 +168,73 @@ if [ "HZ_CLIENT_MODE" == true ]; then
     fi
 fi
 
-/bin/dockerize -template ${CATALINA_HOME}/webapps/ROOT/index.html:${CATALINA_HOME}/webapps/ROOT/index.html
+# /bin/dockerize -template ${CATALINA_HOME}/webapps/ROOT/index.html:${CATALINA_HOME}/webapps/ROOT/index.html
 
-appContextFileName=$(echo "${PEGA_APP_CONTEXT_PATH}"|sed 's/\//#/g')
+# appContextFileName=$(echo "${PEGA_APP_CONTEXT_PATH}"|sed 's/\//#/g')
 
-if [ ${PEGA_APP_CONTEXT_PATH} != "prweb" ]; then
-    # Move pega deployment out of webapps to avoid double deployment
-    if [ ! -d "/opt/pega/prweb/WEB-INF" ]; then 
-       cp -r ${PEGA_DEPLOYMENT_DIR}/* /opt/pega/prweb
-       rm -rf ${PEGA_DEPLOYMENT_DIR}
-       mv ${CATALINA_HOME}/conf/Catalina/localhost/prweb.xml ${CATALINA_HOME}/conf/Catalina/localhost/${appContextFileName}.xml
-    fi   
-    export PEGA_DEPLOYMENT_DIR=/opt/pega/prweb
-fi
+# if [ ${PEGA_APP_CONTEXT_PATH} != "prweb" ]; then
+#     # Move pega deployment out of webapps to avoid double deployment
+#     if [ ! -d "/opt/pega/prweb/WEB-INF" ]; then 
+#        cp -r ${PEGA_DEPLOYMENT_DIR}/* /opt/pega/prweb
+#        rm -rf ${PEGA_DEPLOYMENT_DIR}
+#        mv ${CATALINA_HOME}/conf/Catalina/localhost/prweb.xml ${CATALINA_HOME}/conf/Catalina/localhost/${appContextFileName}.xml
+#     fi   
+#     export PEGA_DEPLOYMENT_DIR=/opt/pega/prweb
+# fi
 
-/bin/dockerize -template ${CATALINA_HOME}/conf/Catalina/localhost/${appContextFileName}.xml:${CATALINA_HOME}/conf/Catalina/localhost/${appContextFileName}.xml
+# /bin/dockerize -template ${CATALINA_HOME}/conf/Catalina/localhost/${appContextFileName}.xml:${CATALINA_HOME}/conf/Catalina/localhost/${appContextFileName}.xml
 
-#
-# Copying mounted prlog4j2 file to webapps/prweb/WEB-INF/classes
-#
-if [ -e "$prlog4j2" ]; then
-  echo "Loading prlog4j2 from ${prlog4j2}...";
-  cp "$prlog4j2" ${PEGA_DEPLOYMENT_DIR}/WEB-INF/classes/
-else
-  echo "No prlog4j2 was specified in ${prlog4j2}.  Using defaults."
-fi
+# #
+# # Copying mounted prlog4j2 file to webapps/prweb/WEB-INF/classes
+# #
+# if [ -e "$prlog4j2" ]; then
+#   echo "Loading prlog4j2 from ${prlog4j2}...";
+#   cp "$prlog4j2" ${PEGA_DEPLOYMENT_DIR}/WEB-INF/classes/
+# else
+#   echo "No prlog4j2 was specified in ${prlog4j2}.  Using defaults."
+# fi
 
-#
-# Copying mounted prconfig file to webapps/prweb/WEB-INF/classes
-#
-if [ -e "$prconfig" ]; then
-  echo "Loading prconfig from ${prconfig}...";
-  cp "$prconfig" ${PEGA_DEPLOYMENT_DIR}/WEB-INF/classes/
-else
-  echo "No prconfig was specified in ${prconfig}.  Using defaults."
-fi
+# #
+# # Copying mounted prconfig file to webapps/prweb/WEB-INF/classes
+# #
+# if [ -e "$prconfig" ]; then 
+#   echo "Loading prconfig from ${prconfig}...";
+#   cp "$prconfig" ${PEGA_DEPLOYMENT_DIR}/WEB-INF/classes/
+# else
+#   echo "No prconfig was specified in ${prconfig}.  Using defaults."
+# fi
 
-#
-# Copying mounted server.xml file to conf
-#
-if [ -e "${server_xml}" ]; then
-  echo "Loading server.xml from ${server_xml}...";
-  cp "${server_xml}" "${CATALINA_HOME}/conf/"
-else
-  echo "No server.xml was specified in ${server_xml}. Using defaults."
-fi
+# #
+# # Copying mounted server.xml file to conf
+# #
+# if [ -e "${server_xml}" ]; then
+#   echo "Loading server.xml from ${server_xml}...";
+#   cp "${server_xml}" "${CATALINA_HOME}/conf/"
+# else
+#   echo "No server.xml was specified in ${server_xml}. Using defaults."
+# fi
 
-#
-# Copying mounted web.xml file to conf
-#
-if [ -e "${web_xml}" ]; then
-  echo "Loading web.xml from ${web_xml}...";
-  cp "${web_xml}" "${PEGA_DEPLOYMENT_DIR}/WEB-INF/"
-else
-  echo "No web.xml was specified in ${web_xml}. Using defaults."
-fi
+# #
+# # Copying mounted web.xml file to conf
+# #
+# if [ -e "${web_xml}" ]; then
+#   echo "Loading web.xml from ${web_xml}...";
+#   cp "${web_xml}" "${PEGA_DEPLOYMENT_DIR}/WEB-INF/"
+# else
+#   echo "No web.xml was specified in ${web_xml}. Using defaults."
+# fi
 
-#
-# Write config files from templates using dockerize ...
-#
-if [ -e "$context_xml" ]; then
-  echo "Loading context.xml from ${context_xml}...";
-  cp "$context_xml" ${CATALINA_HOME}/conf/
-else
+# #
+# # Write config files from templates using dockerize ...
+# #
+# if [ -e "$context_xml" ]; then
+#   echo "Loading context.xml from ${context_xml}...";
+#   cp "$context_xml" ${CATALINA_HOME}/conf/
+
+
+
+
+# else
     if [ -e "$db_username_file" ]; then
        export SECRET_DB_USERNAME=$(<${db_username_file})
     else
@@ -246,17 +252,17 @@ else
       exit 1
     fi
 
-  echo "No context.xml was specified in ${context_xml}.  Generating from templates."
-    if [ -e ${config_root}/context.xml.tmpl ] ; then
-      cp ${config_root}/context.xml.tmpl ${CATALINA_HOME}/conf/context.xml.tmpl
-    fi
-  /bin/dockerize -template ${CATALINA_HOME}/conf/context.xml.tmpl:${CATALINA_HOME}/conf/context.xml
-fi
+  # echo "No context.xml was specified in ${context_xml}.  Generating from templates."
+  #   if [ -e ${config_root}/context.xml.tmpl ] ; then
+  #     cp ${config_root}/context.xml.tmpl ${CATALINA_HOME}/conf/context.xml.tmpl
+  #   fi
+  # /bin/dockerize -template ${CATALINA_HOME}/conf/context.xml.tmpl:${CATALINA_HOME}/conf/context.xml
+# fi
 
-if [ -e "$tomcatusers_xml" ]; then
-  echo "Loading tomcat-users.xml from ${tomcatusers_xml}...";
-  cp "$tomcatusers_xml" ${CATALINA_HOME}/conf/
-else
+# if [ -e "$tomcatusers_xml" ]; then
+#   echo "Loading tomcat-users.xml from ${tomcatusers_xml}...";
+#   cp "$tomcatusers_xml" ${CATALINA_HOME}/conf/
+# else
     if [ -e "$pega_diagnostic_username_file" ]; then
        export SECRET_PEGA_DIAGNOSTIC_USER=$(<${pega_diagnostic_username_file})
     else
@@ -268,20 +274,24 @@ else
     else
        export SECRET_PEGA_DIAGNOSTIC_PASSWORD=${PEGA_DIAGNOSTIC_PASSWORD}
     fi
-    /bin/dockerize -template ${CATALINA_HOME}/conf/tomcat-users.xml.tmpl:${CATALINA_HOME}/conf/tomcat-users.xml
-fi
+#     /bin/dockerize -template ${CATALINA_HOME}/conf/tomcat-users.xml.tmpl:${CATALINA_HOME}/conf/tomcat-users.xml
+# fi
 
-rm ${CATALINA_HOME}/conf/context.xml.tmpl
-rm ${CATALINA_HOME}/conf/tomcat-users.xml.tmpl
+# rm ${CATALINA_HOME}/conf/context.xml.tmpl
+# rm ${CATALINA_HOME}/conf/tomcat-users.xml.tmpl
+
+# /bin/dockerize -template ${JBOSS_HOME}/modules/system/layers/base/org/postgresql/main/module.xml:${JBOSS_HOME}/modules/system/layers/base/org/postgresql/main/module.xml
+
+/bin/dockerize -template ${JBOSS_HOME}/standalone/configuration/standalone.xml:${JBOSS_HOME}/standalone/configuration/standalone.xml
 
 
-unset DB_USERNAME DB_PASSWORD SECRET_DB_USERNAME SECRET_DB_PASSWORD CASSANDRA_USERNAME CASSANDRA_PASSWORD SECRET_CASSANDRA_USERNAME SECRET_CASSANDRA_PASSWORD PEGA_DIAGNOSTIC_USER PEGA_DIAGNOSTIC_PASSWORD SECRET_PEGA_DIAGNOSTIC_USER SECRET_PEGA_DIAGNOSTIC_PASSWORD PEGA_APP_CONTEXT_ROOT HZ_CS_AUTH_USERNAME SECRET_HZ_CS_AUTH_USERNAME HZ_CS_AUTH_PASSWORD SECRET_HZ_CS_AUTH_PASSWORD CASSANDRA_TRUSTSTORE_PASSWORD SECRET_CASSANDRA_TRUSTSTORE_PASSWORD CASSANDRA_KEYSTORE_PASSWORD SECRET_CASSANDRA_KEYSTORE_PASSWORD
+# unset DB_USERNAME DB_PASSWORD SECRET_DB_USERNAME SECRET_DB_PASSWORD CASSANDRA_USERNAME CASSANDRA_PASSWORD SECRET_CASSANDRA_USERNAME SECRET_CASSANDRA_PASSWORD PEGA_DIAGNOSTIC_USER PEGA_DIAGNOSTIC_PASSWORD SECRET_PEGA_DIAGNOSTIC_USER SECRET_PEGA_DIAGNOSTIC_PASSWORD PEGA_APP_CONTEXT_ROOT HZ_CS_AUTH_USERNAME SECRET_HZ_CS_AUTH_USERNAME HZ_CS_AUTH_PASSWORD SECRET_HZ_CS_AUTH_PASSWORD CASSANDRA_TRUSTSTORE_PASSWORD SECRET_CASSANDRA_TRUSTSTORE_PASSWORD CASSANDRA_KEYSTORE_PASSWORD SECRET_CASSANDRA_KEYSTORE_PASSWORD
 
 unset pega_root lib_root config_root
 
-# Run tomcat if the first argument is run otherwise try to run whatever the argument is a command
-if [ "$1" = 'run' ]; then
-  exec catalina.sh "$@"
+# Run Jboss if the first argument is -b otherwise try to run whatever the argument is a command
+if [ "$1" = '-b' -a "$2" = '0.0.0.0' ]; then
+    exec $JBOSS_HOME/bin/standalone.sh "$@"
 else
-  exec "$@"
+    exec "$@"
 fi

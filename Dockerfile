@@ -1,21 +1,55 @@
-# Dockerfile for Pega 8 Platform
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ------------------------------------------------------------------------
+#
+# This is a Dockerfile for Pega 8 Platform using jboss-eap-7.3.
 
 # Base image to extend from
-FROM pegasystems/tomcat:9-jdk11 as release
+FROM registry.redhat.io/ubi8/ubi:latest
+
+USER root
 
 ARG VERSION
 
-LABEL vendor="Pegasystems Inc." \
-      name="Pega Tomcat Node" \
-      version=${VERSION:-CUSTOM_BUILD}
+LABEL vendor="Pega JBoss POC" \
+      name="Pega JBoss Node" \
+      version=${VERSION:-CUSTOM_BUILD} \
+      maintainer="timothy.lai@pega.com"
+
+ENV PEGA_DOCKER_VERSION=${VERSION:-CUSTOM_BUILD}      
 
 # Creating new user and group
 
 RUN groupadd -g 9001 pegauser && \
     useradd -r -u 9001 -g pegauser pegauser
 
+# Install JBoss & related
 
-ENV PEGA_DOCKER_VERSION=${VERSION:-CUSTOM_BUILD}
+ENV JBOSS_HOME=/usr/local/jboss-eap
+
+RUN dnf --setopt=tsflags=nodocs install -y java-11-openjdk.x86_64 hostname      
+
+COPY jboss-eap-7.3.tar.gz /tmp/jboss-eap-7.3.tar.gz
+
+RUN cd /usr/local && tar -xzvf /tmp/jboss-eap-7.3.tar.gz && mv jboss-eap-7.3 jboss-eap && rm /tmp/jboss-eap-7.3.tar.gz
+
+RUN cd /usr/local && find ./jboss-eap -type d -exec chmod 0775 {} \;
+
+RUN cd /usr/local && find ./jboss-eap -type f -exec chmod 0660 {} \;
+
+RUN chmod -R 775 /usr/local/jboss-eap/bin
+
+RUN chown -R pegauser.root /usr/local/jboss-eap
 
 # Create directory for storing heapdump
 RUN mkdir -p /heapdumps  && \
@@ -74,6 +108,13 @@ ENV JDBC_URL='' \
     DB_PASSWORD='' \
     JDBC_CLASS=''
 
+# # For testing only
+# ENV JDBC_URL=jdbc:postgresql://10.88.0.1/pega853
+# ENV JDBC_CLASS=org.postgresql.
+# ENV DB_USERNAME=pegaadmin
+# ENV DB_PASSWORD=pegaadmin
+# ENV DB_TYPE=postgresql
+
 # Load a default PostgreSQL driver on startup
 ENV JDBC_DRIVER_URI=''
 
@@ -92,11 +133,11 @@ ENV RULES_SCHEMA=rules \
     DATA_SCHEMA=data \
     CUSTOMERDATA_SCHEMA=
 
-#Tomcat user environment variables for pega diagnostic user
+#JBoss user environment variables for pega diagnostic user
 ENV PEGA_DIAGNOSTIC_USER='' \
     PEGA_DIAGNOSTIC_PASSWORD=''
 
-# Parameterize variables to customize the tomcat runtime
+# Parameterize variables to customize the JBoss runtime
 ENV JAVA_OPTS="" \
     MAX_HEAP="4096m" \
     INITIAL_HEAP="2048m" \
@@ -106,7 +147,7 @@ ENV JAVA_OPTS="" \
     NODE_TIER="" \
     NODE_SETTINGS="" \
     PEGA_APP_CONTEXT_PATH=prweb \
-    PEGA_DEPLOYMENT_DIR=${CATALINA_HOME}/webapps/prweb
+    PEGA_DEPLOYMENT_DIR=${JBOSS_HOME}/webapps/prweb
 
 # Configure Remote JMX support and bind to port 9001
 ENV JMX_PORT=9001 \
@@ -149,41 +190,58 @@ RUN mkdir -p /opt/pega/prometheus && \
     chown -R pegauser /opt/pega/prometheus && \
     chmod 440 /opt/pega/prometheus/jmx_prometheus_javaagent.jar
     
-# Remove existing webapps
-RUN rm -rf ${CATALINA_HOME}/webapps/*
+# # Remove existing webapps
+# RUN rm -rf ${JBOSS_HOME}/webapps/*
 
-# Copy in tomcat configuration and application files
-COPY tomcat-webapps ${CATALINA_HOME}/webapps/
-COPY tomcat-bin ${CATALINA_HOME}/bin/
-COPY tomcat-conf ${CATALINA_HOME}/conf/
+# # Copy in tomcat configuration and application files
+# COPY tomcat-webapps ${JBOSS_HOME}/webapps/
+# COPY tomcat-bin ${JBOSS_HOME}/bin/
+# COPY tomcat-conf ${JBOSS_HOME}/conf/
 COPY scripts /scripts
+
+RUN mkdir -p /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main
+RUN mkdir /usr/local/jboss-eap/standalone/pega
+COPY jboss-eap/modules/system/layers/base/org/postgresql/main/module.xml /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/module.xml
+COPY jboss-eap/modules/system/layers/base/org/postgresql/main/postgresql-42.2.12.jar /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/postgresql-42.2.12.jar
+COPY jboss-eap/bin/standalone.conf /usr/local/jboss-eap/bin/standalone.conf
+COPY jboss-eap/modules/system/layers/base/javax/activation/api/main/module.xml  /usr/local/jboss-eap/modules/system/layers/base/javax/activation/api/main/module.xml
+COPY jboss-eap/standalone/configuration/standalone.xml /usr/local/jboss-eap/standalone/configuration/standalone.xml
+COPY jboss-eap/prweb.war /usr/local/jboss-eap/standalone/deployments/prweb.war
+RUN chmod 775 /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main /usr/local/jboss-eap/standalone/pega
+RUN chmod 664 /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/module.xml \
+    /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/postgresql-42.2.12.jar \
+    /usr/local/jboss-eap/bin/standalone.conf \
+    /usr/local/jboss-eap/modules/system/layers/base/javax/activation/api/main/module.xml \
+    /usr/local/jboss-eap/standalone/configuration/standalone.xml \
+    /usr/local/jboss-eap/standalone/deployments/prweb.war
+RUN chown -R pegauser.root /usr/local/jboss-eap
 
 #Installing dockerize for generating config files using templates
 RUN curl -sL https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz | tar zxf - -C /bin/
 
 # Update access of required directories to allow not running in root for openshift
-RUN chmod -R g+rw ${CATALINA_HOME}/logs  && \
-    chmod -R g+rw ${CATALINA_HOME}/lib  && \
-    chmod -R g+rw ${CATALINA_HOME}/work  && \
-    chmod -R g+rw ${CATALINA_HOME}/conf  && \
-    chmod -R g+rw ${CATALINA_HOME}/bin  && \
-    chmod -R g+rw ${CATALINA_HOME}/webapps && \
-    chmod -R g+x /scripts && \
-    chown -R pegauser /scripts && \
-    chmod g+r ${CATALINA_HOME}/conf/web.xml && \
-    chown -R pegauser ${CATALINA_HOME}  && \
-    mkdir /search_index && \
-    chmod -R g+w /search_index && \
-    chown -R pegauser /search_index
+# RUN chmod -R g+rw ${JBOSS_HOME}/logs  && \
+#     chmod -R g+rw ${JBOSS_HOME}/lib  && \
+#     chmod -R g+rw ${JBOSS_HOME}/work  && \
+#     chmod -R g+rw ${JBOSS_HOME}/conf  && \
+#     chmod -R g+rw ${JBOSS_HOME}/webapps && \
+#     chmod -R g+x /scripts && \
+#     chown -R pegauser /scripts && \
+#     chmod g+r ${JBOSS_HOME}/conf/web.xml && \
+#     chown -R pegauser ${JBOSS_HOME}  && \
+#     mkdir /search_index && \
+#     chmod -R g+w /search_index && \
+#     chown -R pegauser /search_index
+
+#running in pegauser context
+RUN chmod 770 /scripts/docker-entrypoint.sh
+RUN chown pegauser.root /scripts/docker-entrypoint.sh
 
 #switched the user to pegauser
 USER pegauser
 
-#running in pegauser context
-RUN chmod 770 /scripts/docker-entrypoint.sh
-
 ENTRYPOINT ["/scripts/docker-entrypoint.sh"]
-CMD ["run"]
+CMD ["-b", "0.0.0.0"]
 
 # Expose required ports
 
@@ -192,11 +250,11 @@ EXPOSE 8080 9001 9090 5701-5710 47100 7003
 
 # *****Target for test environment*****
 
-FROM release as qualitytest
-USER root
-RUN mkdir /tests && \
-    chown -R pegauser /tests
-COPY tests /tests
-RUN chmod -R 777 /tests
-USER pegauser
-FROM release
+# FROM release as qualitytest
+# USER root
+# RUN mkdir /tests && \
+#     chown -R pegauser /tests
+# COPY tests /tests
+# RUN chmod -R 777 /tests
+# USER pegauser
+# FROM release
