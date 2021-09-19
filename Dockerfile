@@ -15,7 +15,7 @@
 # This is a Dockerfile for Pega 8 Platform using jboss-eap-7.3.
 
 # Base image to extend from
-FROM registry.redhat.io/ubi8/ubi:latest
+FROM docker.io/pegatim/jboss-eap:7.3.0
 
 USER root
 
@@ -32,24 +32,6 @@ ENV PEGA_DOCKER_VERSION=${VERSION:-CUSTOM_BUILD}
 
 RUN groupadd -g 9001 pegauser && \
     useradd -r -u 9001 -g pegauser pegauser
-
-# Install JBoss & related
-
-ENV JBOSS_HOME=/usr/local/jboss-eap
-
-RUN dnf --setopt=tsflags=nodocs install -y java-11-openjdk.x86_64 hostname      
-
-COPY jboss-eap-7.3.tar.gz /tmp/jboss-eap-7.3.tar.gz
-
-RUN cd /usr/local && tar -xzvf /tmp/jboss-eap-7.3.tar.gz && mv jboss-eap-7.3 jboss-eap && rm /tmp/jboss-eap-7.3.tar.gz
-
-RUN cd /usr/local && find ./jboss-eap -type d -exec chmod 0775 {} \;
-
-RUN cd /usr/local && find ./jboss-eap -type f -exec chmod 0660 {} \;
-
-RUN chmod -R 775 /usr/local/jboss-eap/bin
-
-RUN chown -R pegauser.root /usr/local/jboss-eap
 
 # Create directory for storing heapdump
 RUN mkdir -p /heapdumps  && \
@@ -115,7 +97,7 @@ ENV JDBC_URL='' \
 # ENV DB_PASSWORD=pegaadmin
 # ENV DB_TYPE=postgresql
 
-# Load a default PostgreSQL driver on startup
+# Load a default JDBC driver on startup
 ENV JDBC_DRIVER_URI=''
 
 # Provide variables for the JDBC connection string
@@ -201,12 +183,13 @@ COPY scripts /scripts
 
 RUN mkdir -p /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main
 RUN mkdir /usr/local/jboss-eap/standalone/pega
-COPY jboss-eap/modules/system/layers/base/org/postgresql/main/module.xml /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/module.xml
-COPY jboss-eap/modules/system/layers/base/org/postgresql/main/postgresql-42.2.12.jar /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/postgresql-42.2.12.jar
-COPY jboss-eap/bin/standalone.conf /usr/local/jboss-eap/bin/standalone.conf
-COPY jboss-eap/modules/system/layers/base/javax/activation/api/main/module.xml  /usr/local/jboss-eap/modules/system/layers/base/javax/activation/api/main/module.xml
-COPY jboss-eap/standalone/configuration/standalone.xml /usr/local/jboss-eap/standalone/configuration/standalone.xml
-COPY jboss-eap/prweb.war /usr/local/jboss-eap/standalone/deployments/prweb.war
+COPY jboss-eap/7.3/modules/system/layers/base/org/postgresql/main/module.xml /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/module.xml
+COPY jboss-eap/7.3/modules/system/layers/base/org/postgresql/main/postgresql-42.2.12.jar /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/postgresql-42.2.12.jar
+COPY jboss-eap/7.3/bin/standalone.conf /usr/local/jboss-eap/bin/standalone.conf
+COPY jboss-eap/7.3/modules/system/layers/base/javax/activation/api/main/module.xml  /usr/local/jboss-eap/modules/system/layers/base/javax/activation/api/main/module.xml
+COPY jboss-eap/7.3/standalone/configuration/standalone.xml /usr/local/jboss-eap/standalone/configuration/standalone.xml
+ADD prweb /opt/pega/prweb/
+RUN cd /opt/pega/prweb/8.5.4 && jar -cvf /usr/local/jboss-eap/standalone/deployments/prweb.war prweb
 RUN chmod 775 /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main /usr/local/jboss-eap/standalone/pega
 RUN chmod 664 /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/module.xml \
     /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/postgresql-42.2.12.jar \
