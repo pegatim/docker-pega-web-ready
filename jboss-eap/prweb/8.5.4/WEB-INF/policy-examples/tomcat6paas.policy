@@ -1,0 +1,331 @@
+// ============================================================================
+// catalina.corepolicy - Security Policy Permissions for Tomcat 6
+//
+// This file contains a default set of security policies to be enforced (by the
+// JVM) when Catalina is executed with the "-security" option.  In addition
+// to the permissions granted here, the following additional permissions are
+// granted to the codebase specific to each web application:
+//
+// * Read access to the document root directory
+//
+// Id: catalina.policy 609294 2008-01-06 11:43:46Z markt
+//
+// $Id: tomcat6paas.policy,v 1.13.2.1 2009/04/29 20:11:59 gajnj Exp $
+//
+// ******************************************************
+//	This policy file for use with PaaS tenant containers
+// ******************************************************
+// ============================================================================
+// 29-Apr-09	GajnJ		Bug-8897	Expose container logs directory to SMA
+// 06-Feb-09	GajnJ		Bug-5556	Ensure Nodes.xml is unwritable
+// 30-Dec-08	GajnJ		Bug-3601	Add Logs directory r/w access to SMA for Struts
+// 03-Dec-08	KendM					Add support for secure JMX
+// 17-Sep-08	GajnJ		Task-2613	Give read only access to shared rule index
+// 11-Sep-08	GajnJ					Rework for new PaaS filesystem layout
+//										Add accessDeclaredMembers to support JSP annotation processing
+// 29-Aug-08	olsok		Code-748	PaaS app under paasapps not webapps
+//										explicitly remove permissions that are no longer necessary
+// 18-Aug-08	olsok		Code-797	enable Bouncy Castle JCE provider
+// 01-Jul-08	olsok		Code-748	PaaS updates - use default work dir only
+// 04-Jun-07	olsok		Code-322	Tomcat 6.0.10 / PegaRULES 5.4
+// 14-Sep-05	GajnJ					Ensure we can read/write to the tempdir
+// 17-Aug-05	solom		R-18773		add getProtectionDomain permission
+// 12-Aug-05	olsok		R-18694		adjusted based on classloader changes
+// 09-Aug-05	olsok		R-18694		configure PegaRULES permissions
+// 09-Aug-05	olsok		R-18694		base policy on Tomcat 5.5.7 distribution
+
+// The PegaRULES polices coded in this file assume that the PegaRULES
+// application is deployed as an expanded war file within the Tomcat and
+// used in PaaS environment. The application is deployed under a foundation
+// deployment, with separate, well-named directories for each configuration.
+//
+// Note that because of these assumptions, this policy file is NOT suitable for
+// use with "non-PaaS" PegaRULES deployments.
+//
+// PegaRULES policies use the following variables that should be supplied
+// as Java system properties at runtime:
+//		java.home				(Standard Java property)
+//		java.io.tmpdir			(Standard Java property)
+//		catalina.home			(Standard Tomcat property)
+
+// ========== SYSTEM CODE PERMISSIONS =========================================
+
+
+// These permissions apply to javac
+grant codeBase "file:${java.home}/lib/-" {
+        permission java.security.AllPermission;
+};
+
+// These permissions apply to all shared system extensions
+grant codeBase "file:${java.home}/jre/lib/ext/-" {
+        permission java.security.AllPermission;
+};
+
+// These permissions apply to javac when ${java.home] points at $JAVA_HOME/jre
+grant codeBase "file:${java.home}/../lib/-" {
+        permission java.security.AllPermission;
+};
+
+// These permissions apply to all shared system extensions when
+// ${java.home} points at $JAVA_HOME/jre
+grant codeBase "file:${java.home}/lib/ext/-" {
+        permission java.security.AllPermission;
+};
+
+
+// ========== CATALINA CODE PERMISSIONS === (Tomcat 6.0.16) ====================
+
+// These permissions apply to the daemon code
+grant codeBase "file:${catalina.home}/bin/commons-daemon.jar" {
+        permission java.security.AllPermission;
+};
+
+// These permissions apply to the logging API
+grant codeBase "file:${catalina.home}/bin/tomcat-juli.jar" {
+        permission java.util.PropertyPermission "java.util.logging.config.class", "read";
+        permission java.util.PropertyPermission "java.util.logging.config.file", "read";
+        permission java.lang.RuntimePermission "shutdownHooks";
+        permission java.io.FilePermission "${catalina.base}${file.separator}conf${file.separator}logging.properties", "read";
+        permission java.util.PropertyPermission "catalina.base", "read";
+        permission java.util.logging.LoggingPermission "control";
+        permission java.io.FilePermission "${catalina.base}${file.separator}logs", "read, write";
+        permission java.io.FilePermission "${catalina.base}${file.separator}logs${file.separator}*", "read, write";
+        permission java.lang.RuntimePermission "getClassLoader";
+        // To enable per context logging configuration, permit read access to the appropriate file.
+        // Be sure that the logging configuration is secure before enabling such access
+        // eg for the examples web application:
+        // permission java.io.FilePermission "${catalina.base}${file.separator}webapps${file.separator}examples${file.separator}WEB-INF${file.separator}classes${file.separator}logging.properties", "read";
+        // 29-Aug-08 enable configuration for PaaS deployments
+        permission java.io.FilePermission "${catalina.base}${/}paasapps${/}prweb${/}WEB-INF${/}classes${/}logging.properties", "read";
+        
+        // 01-Jul-08 allow java.util.TimeZone to set its internal static default timezone field
+        // instead of having to fallback to a threadlocal version (because the first caller of TimeZone.getDefault() doesn't have the
+        // requisite permission).
+        permission java.util.PropertyPermission "user.timezone", "write";
+        // java.util.logging needs the following
+        permission java.lang.RuntimePermission "accessClassInPackage.sun.util.logging.resources";
+};
+
+// These permissions apply to the server startup code
+grant codeBase "file:${catalina.home}/bin/bootstrap.jar" {
+        permission java.security.AllPermission;
+};
+
+// These permissions apply to the servlet API classes
+// and those that are shared across all class loaders
+// located in the "lib" directory
+grant codeBase "file:${catalina.home}/lib/-" {
+        permission java.security.AllPermission;
+};
+
+// ========== WEB APPLICATION PERMISSIONS =====================================
+
+
+// These permissions are granted by default to all web applications
+// In addition, a web application will be given a read FilePermission
+// and JndiPermission for all files and directories in its document root.
+grant {
+// 01-Jul-08 PegaRULES grants permission to real ALL properties below
+// so to shorten the permissions list and (hopefully) reduce lookup time
+
+    // Required for OpenJMX
+    permission java.lang.RuntimePermission "getAttribute";
+
+    // Precompiled JSPs need access to this package.
+    permission java.lang.RuntimePermission "accessClassInPackage.org.apache.jasper.runtime";
+    permission java.lang.RuntimePermission "accessClassInPackage.org.apache.jasper.runtime.*";
+};
+
+// ========================================================================================
+// PegaRULES V5.5 PaaS configuration follows (29-Aug-2008)
+// (assumes the jdbc jar files have been copied to ${catalina.home}/lib)
+grant {
+	// per J2EE spec, privileges granted to all J2EE components
+	permission java.lang.RuntimePermission "queuePrintJob"; 
+	permission java.net.SocketPermission "*", "connect"; 
+	permission java.util.PropertyPermission "*", "read";
+
+	// Named instances of SQL/Server 2005 require the following additional permissions
+	// (that apparently are not needed for default instances)
+	permission java.net.SocketPermission "*", "resolve,listen,accept"; 
+
+	// For Tomcat to process annotations
+	permission java.lang.RuntimePermission "accessDeclaredMembers";
+	
+	// For the Struts HTML Tag in SMA
+    permission java.io.FilePermission "${catalina.base}${file.separator}logs", "read, write";
+    permission java.io.FilePermission "${catalina.base}${file.separator}logs${file.separator}*", "read, write";
+};
+
+// PaaS deployments will not have prsysmgmt in the individual Tomcat instances
+// so the prsysmgmt policy has been removed from this policy file.
+
+grant codebase "file:${pega.paas.foundation.root}/WebApps/prsysmgmt/WEB-INF/lib/-" {
+	// the following needed to read prsysmgmt node configuration file
+	// PaaS perform the write, so SMA itself shouldn't be allowed to
+	permission java.io.FilePermission "${user.home}${/}Nodes.xml", "read";
+
+	// The following are needed for Struts' HtmlTag to initialize its logging
+	permission java.io.FilePermission "${catalina.base}${file.separator}logs", "read, write";
+    permission java.io.FilePermission "${catalina.base}${file.separator}logs${file.separator}*", "read, write";
+	
+	// the following needed to access properties that control startup and configuration
+	permission java.util.PropertyPermission "*", "read,write";
+	
+	// the following needed for MBean support
+	permission com.ibm.websphere.security.WebSphereRuntimePermission "AdminPermission";
+	permission javax.management.MBeanTrustPermission "register";
+	permission javax.management.MBeanServerPermission "findMBeanServer";
+    permission javax.management.MBeanPermission "-#-[-]", "queryMBeans";
+    permission javax.management.MBeanPermission "com.pega.*#*[]", "*";
+	permission javax.management.MBeanPermission "*#*[]", "queryNames";
+	permission javax.management.MBeanPermission "com.pega.*#*[]", "registerMBean";
+	permission javax.management.MBeanPermission "com.pega.*#*[]", "isInstanceOf";
+	permission javax.management.MBeanPermission "com.pega.*#*[]", "getMBeanInfo";
+	permission javax.management.MBeanPermission "com.pega.*#*[]", "unregisterMBean";
+	permission javax.management.MBeanPermission "com.pega.*#*[]", "addNotificationListener";
+	
+	// the following needed to monitor JVM events for low memory alerts / tracebacks
+	permission java.lang.management.ManagementPermission "control";
+	
+	// the following needed by PRBaseLoader, PRAppLoader and other classloaders within PegaRULES
+	permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+	permission java.util.logging.LoggingPermission "control";
+	permission java.lang.RuntimePermission "createClassLoader";
+	permission java.lang.RuntimePermission "accessDeclaredMembers";
+	permission java.lang.RuntimePermission "getClassLoader";
+	permission java.lang.RuntimePermission "getProtectionDomain";
+	permission java.security.SecurityPermission "getPolicy";
+
+	permission java.lang.RuntimePermission "accessClassInPackage.sun.util.logging.resources";
+
+	// the following needed by Log4J asynch appenders and resource adapter timer thread
+	permission java.lang.RuntimePermission "modifyThreadGroup";
+	permission java.lang.RuntimePermission "modifyThread";
+
+	// the following needed for server identification display	
+	permission com.ibm.websphere.security.WebSphereRuntimePermission "accessRuntimeClasses";
+	permission java.io.FilePermission "${was.install.root}", "read";
+	permission java.io.FilePermission "${was.install.root}${/}-", "read";
+	
+	// WebSphere establishes a protection domain based on the jar file in which the
+	// class performing the operation resides, and does not grant permission to
+	// read other jar files under the deployment. The following addresses that issue.
+	permission java.io.FilePermission "${app.installed.path}${/}-", "read";			// IMPLIED by was.install.root read permission
+	// permission java.io.FilePermission "${user.install.root}${/}temp${/}${current.node.name}${/}${current.server.name}${/}prsysmgmt${/}prsysmgmt.war${/}-", "read,write";		// Need write access for nodes.xml
+
+	// the following needed to probe for user-specific prconfig/prlogging files
+//	permission java.io.FilePermission "${user.home}${/}*", "read";
+	
+	// the following needed for access to relocated temp and root directories
+	permission java.io.FilePermission "${pega.tmpdir}", "read,write,delete";
+	permission java.io.FilePermission "${pega.tmpdir}${/}-", "read,write,delete";
+
+	// the following needed for WebSphere SQL/Server jdbc drivers
+	permission java.io.FilePermission "${java.io.tmpdir}${/}-", "read,write,delete";
+
+	// needed when using container managed security
+	permission javax.security.auth.AuthPermission "getSubject";
+};
+
+// Permissions to be granted to each PaaS instance.
+grant codebase "file:${pega.paas.foundation.root}/WebApps/prweb/WEB-INF/lib/-" {
+	// the following needed to probe for user-specific prconfig/prlogging files
+	// FIXME - do we want to retain the ability to use these overrides with PaaS?
+	permission java.io.FilePermission "${user.home}${/}*", "read";
+
+	// the following needed for BaseLogger logging
+	permission java.util.logging.LoggingPermission "control", "";
+
+	// the following needed for PRBootLoader and PRAppLoader
+	permission java.lang.RuntimePermission "createClassLoader";					// also needed by Axis
+	permission java.lang.RuntimePermission "getClassLoader";
+	permission java.lang.RuntimePermission "getProtectionDomain";
+	permission java.security.SecurityPermission "getPolicy";
+	// the following needed to register the Bouncy Castle JCE provider
+	permission java.security.SecurityPermission "putProviderProperty.BC";
+	permission java.security.SecurityPermission "insertProvider.BC";
+	permission java.security.SecurityPermission "removeProvider.BC";
+
+	// needed by PRAppLoader during resource cleanup
+	permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+	permission java.lang.RuntimePermission "modifyThread";
+
+	// permissions needed for access to default temp directories granted by Tomcat
+	
+	// permissions needed to avoid error (messages) when normalizing file specifications during initialization granted by Tomcat / PegaRULES
+	
+	// permissions needed for access to relocated temp and root directories removed for PaaS
+	// since PaaS requires use of default temp directories, so these are unnecessary
+
+	// the following needed to get PegaRULES host ip address
+	permission java.net.SocketPermission "*", "resolve";
+	
+	// the following needed for JMX support
+	permission javax.management.MBeanPermission "*#*[]", "getAttribute";
+	permission javax.management.MBeanPermission "-#-[-]", "queryNames";
+	permission javax.management.MBeanPermission "*#*[]", "queryNames";
+	permission javax.management.MBeanPermission "com.pega.*#*[]", "registerMBean";
+	permission javax.management.MBeanPermission "com.pega.*#*[]", "unregisterMBean";
+	permission javax.management.MBeanServerPermission "findMBeanServer";
+	permission javax.management.MBeanTrustPermission "register";
+	permission mx4j.server.MBeanPermission "-#-[-]", "queryNames";		// for Tomcat with Java 1.4.2 using mx4j
+	permission java.lang.management.ManagementPermission "control";		// for JVMNotificationManagerBase - set threshholds
+	
+	// the following needed for access to Tomcat jars and classes
+	permission java.io.FilePermission "${catalina.home}${/}lib${/}-", "read";
+
+	// the following needed by various 3rd party libraries (e.g. axis)
+//	permission java.io.FilePermission "${catalina.home}${/}bin${/}*", "read";	// for commons-logging-api.jar - which is no longer used with Tomcat 6
+	permission java.lang.RuntimePermission "accessDeclaredMembers";
+
+	// the following needed for the embedded Eclipse compiler
+	// Note that under Java 6 the property "java.ext.dirs" is a path-like list and on Windows
+	// will include the jre under c:\Windows as well as the jre specified by "java.home".
+	// One may need to grant explicit permissions for the additional locations (Pega customized
+	// Eclipse compiler v3.3 should silently ignore directories to which it doesn't have read
+	// access, but an unmodified compiler is not so tolerant.)
+	permission java.io.FilePermission "${java.home}", "read";
+	permission java.io.FilePermission "${java.home}${/}-", "read";	// for compiler jars
+	// the following needed for access to Tomcat's endorsed classpath
+	permission java.io.FilePermission "${catalina.home}${/}endorsed${/}", "read";
+
+	// the following needed to locate the javac compiler when ${java.home} points to a jre
+	// if one wishes to use javac instead of the embedded Eclipse compiler
+	permission java.io.FilePermission "${java.home}${/}..${/}-", "read";
+		
+	// the following needed for embedded JSP compilation
+	permission java.lang.RuntimePermission "setContextClassLoader";
+	permission java.lang.RuntimePermission "setIO";
+		
+	// the following needed to get CPU timings in PAL
+	// Note that paths have been adjusted for PaaS conventions
+	permission java.lang.RuntimePermission "loadLibrary.${catalina.home}${/}paasapps${/}prweb${/}WEB-INF${/}binredist${/}x86${/}pr3native.dll";
+	permission java.lang.RuntimePermission "loadLibrary.${catalina.home}${/}paasapps${/}prweb${/}WEB-INF${/}binredist${/}ppc${/}pr3native.so";
+	permission java.lang.RuntimePermission "loadLibrary.${catalina.home}${/}paasapps${/}prweb${/}WEB-INF${/}binredist${/}sparc${/}pr3native.so";
+	// needed for performance timings using JVM facilities rather than the Pega shared libraries
+	permission java.lang.RuntimePermission "accessClassInPackage.sun.misc";
+	permission java.lang.RuntimePermission "sun.misc.Perf.getPerf";
+	// needed for thread dumps
+	permission java.lang.RuntimePermission "getStackTrace";
+
+	// the following needed to query the web-tier character encoding and display error pages
+	permission java.lang.RuntimePermission "accessClassInPackage.org.apache.catalina.connector";
+	permission java.lang.RuntimePermission "accessClassInPackage.org.apache.catalina.core";
+	permission java.lang.RuntimePermission "accessClassInPackage.sun.util.logging.resources";
+
+	// the following needed for access to jdbc datasources
+	permission java.lang.RuntimePermission "accessClassInPackage.org.apache.tomcat.dbcp.collections";
+	permission java.lang.RuntimePermission "accessClassInPackage.org.apache.tomcat.dbcp.*";
+	permission java.lang.RuntimePermission "accessClassInPackage.sun.jdbc.odbc";
+
+	// For access to the Shared Lucene Index
+	permission java.io.FilePermission "${pega.paas.foundation.root}${/}SharedRuleIndex${/}RuleIndex${/}", "read";
+	permission java.io.FilePermission "${pega.paas.foundation.root}${/}SharedRuleIndex${/}RuleIndex${/}*", "read";
+};
+
+// ========== JMX PERMISSIONS =========================================
+grant principal javax.management.remote.JMXPrincipal "paasjmx" {
+	// Grant JMX acess rights equiv to tomcat
+	permission java.security.AllPermission;
+};
