@@ -41,5 +41,5 @@
 		<res-ref-name>jdbc/PRFileStore</res-ref-name>
 		<jndi-name>java:/url/pega/none</jndi-name>
 	</resource-ref>
-	
+	<enable-websockets>true</enable-websockets>
 </jboss-web>

@@ -1282,6 +1282,7 @@
 	<!--NoThin start-->
 	<resource-ref id="ResourceRef_1">
 		<description>PegaRULES datasource</description>
+		<lookup-name>java:jboss/PegaRULES</lookup-name>
 		<res-ref-name>jdbc/PegaRULES</res-ref-name>
 		<res-type>javax.sql.DataSource</res-type>
 		<res-auth>Container</res-auth>
@@ -1289,6 +1290,7 @@
 	</resource-ref>
 	<resource-ref id="ResourceRef_2">
 		<description>PegaRULES Admin datasource</description>
+		<lookup-name>java:jboss/AdminPegaRULES</lookup-name>
 		<res-ref-name>jdbc/AdminPegaRULES</res-ref-name>
 		<res-type>javax.sql.DataSource</res-type>
 		<res-auth>Container</res-auth>
