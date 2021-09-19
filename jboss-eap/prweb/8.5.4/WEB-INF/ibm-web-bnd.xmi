@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: ibm-web-bnd.xmi,v 1.2 2010-08-11 20:23:01 greek Exp $  -->
+<com.ibm.ejs.models.base.bindings.webappbnd:WebAppBinding xmi:version="2.0"
+	xmlns:xmi="http://www.omg.org/XMI"
+	xmlns:com.ibm.ejs.models.base.bindings.webappbnd="webappbnd.xmi"
+	xmlns:com.ibm.etools.j2ee.common="common.xmi"
+	xmi:id="WebAppBinding_1122303909736"
+	virtualHostName="default_host">
+  <webapp href="WEB-INF/web.xml#WebApp_1"/>
+<!--NoThin start-->
+  <resRefBindings xmi:id="ResourceRefBinding_1" jndiName="jdbc/PegaRULES">
+    <bindingResourceRef href="WEB-INF/web.xml#ResourceRef_1"/>
+  </resRefBindings>
+  <resRefBindings xmi:id="ResourceRefBinding_2" jndiName="jdbc/AdminPegaRULES">
+    <bindingResourceRef href="WEB-INF/web.xml#ResourceRef_2"/>
+  </resRefBindings>
+<!--NoThin end-->
+  <resRefBindings xmi:id="ResourceRefBinding_3" jndiName="url/pega/none">
+    <bindingResourceRef href="WEB-INF/web.xml#ResourceRef_3"/>
+  </resRefBindings>
+  <resRefBindings xmi:id="ResourceRefBinding_5" jndiName="url/pega/none"> <!--"url/pegarules.logging.configuration"> -->
+	<bindingResourceRef href="WEB-INF/web.xml#ResourceRef_5"/>
+  </resRefBindings>
+  <resRefBindings xmi:id="ResourceRefBinding_6" jndiName="url/pega/none"> <!--"url/initialization/explicittempdir"> -->
+	<bindingResourceRef href="WEB-INF/web.xml#ResourceRef_6"/>
+  </resRefBindings>
+  <resRefBindings xmi:id="ResourceRefBinding_7" jndiName="url/pega/none"> <!--"url/pegarules.config"> -->
+	<bindingResourceRef href="WEB-INF/web.xml#ResourceRef_7"/>
+  </resRefBindings>
+  <resRefBindings xmi:id="ResourceRefBinding_8" jndiName="url/pega/none"> <!--"url/pegarules.keyring"> -->
+	<bindingResourceRef href="WEB-INF/web.xml#ResourceRef_8"/>
+  </resRefBindings>
+  <resRefBindings xmi:id="ResourceRefBinding_9" jndiName="url/pega/none"> <!--"url/prmbeans.security"> -->
+	<bindingResourceRef href="WEB-INF/web.xml#ResourceRef_9"/>
+  </resRefBindings>
+  <resRefBindings xmi:id="ResourceRefBinding_10" jndiName="url/pega/none"> <!--"url/pegarules.bootstrap"> -->
+	<bindingResourceRef href="WEB-INF/web.xml#ResourceRef_10"/>
+  </resRefBindings>
+</com.ibm.ejs.models.base.bindings.webappbnd:WebAppBinding>

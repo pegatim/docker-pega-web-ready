@@ -33,6 +33,10 @@ ENV PEGA_DOCKER_VERSION=${VERSION:-CUSTOM_BUILD}
 RUN groupadd -g 9001 pegauser && \
     useradd -r -u 9001 -g pegauser pegauser
 
+# Install JBoss & related
+
+RUN chown -R pegauser.root /usr/local/jboss-eap
+
 # Create directory for storing heapdump
 RUN mkdir -p /heapdumps  && \
     chgrp -R 0 /heapdumps && \
