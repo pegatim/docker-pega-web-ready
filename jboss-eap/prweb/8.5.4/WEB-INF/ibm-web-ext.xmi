@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: ibm-web-ext.xmi,v 1.1 2009-06-15 21:25:31 frohr Exp $  -->
+<webappext:WebAppExtension xmi:version="2.0" 
+		xmlns:xmi="http://www.omg.org/XMI"
+		xmlns:webappext="webappext.xmi"
+		xmi:id="WebAppExtension_1239133273664"
+		reloadingEnabled="false"
+		fileServingEnabled="true"
+		directoryBrowsingEnabled="false"
+		serveServletsByClassnameEnabled="false"
+		preCompileJSPs="true"
+		autoRequestEncoding="false"
+		autoResponseEncoding="false"
+		autoLoadFilters="false">
+	<webApp href="WEB-INF/web.xml#WebApp_1"/>
+</webappext:WebAppExtension>
