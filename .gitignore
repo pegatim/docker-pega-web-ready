@@ -3,3 +3,5 @@
 *.war
 *.jar
 .vscode/
+jboss-eap/7.3/jboss-eap-7.3.tar.gz
+tmp/
