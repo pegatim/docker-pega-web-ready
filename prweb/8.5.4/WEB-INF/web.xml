@@ -1,0 +1,1855 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app id="WebApp_1">
+	<distributable/>
+	<!-- Context Param is used along with servlet WebStandardAsync -->
+ 	<context-param>
+    	<param-name>AsyncPush</param-name>   
+    	<param-value>true</param-value>
+  	</context-param> 
+	<listener>
+		<listener-class>com.pega.pegarules.internal.web.servlet.WebAppLifeCycleListenerBoot</listener-class>
+	</listener>
+	<servlet>
+		<servlet-name>WebStandard</servlet-name>
+		<display-name>WebStandard</display-name>
+		<description>Starting standard interface to PegaRULES, using internal authentication</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--  COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<!-- Basic PegaRULES Authentication is the default
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRBasic</param-value>
+		</init-param>
+		-->
+		<!-- Customize Status Screen: This is assignable per-servlet, value below is the default
+		<init-param>
+			<param-name>StatusPage</param-name>
+			<param-value>/diagnostic/status.jsp</param-value>
+		</init-param>
+		-->
+	</servlet>
+	
+ 	<servlet>
+		<servlet-name>WebStandardAsync</servlet-name>
+		<display-name>WebStandardAsync</display-name>
+		<description>Servlet for server push feature</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.AsyncRequestAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>StatusPage</param-name>
+			<param-value>/diagnostic/status.jsp</param-value>
+		</init-param>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>WebStandardContainerAuth</servlet-name>
+		<display-name>WebStandardContainerAuth</display-name>
+		<description>Starting standard interface to PegaRULES, using J2EE context information for authentication</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--  COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>J2EEContext</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>WebStandardSecureLogin</servlet-name>
+		<display-name>WebStandardSecureLogin</display-name>
+		<description>Starting standard interface to PegaRULES, using HTTPS for authentication *only*</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--  COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRSecuredBasic</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>PRServletProtected</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SecureServletName</param-name>
+			<param-value>PRServletProtectedAuth</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>WebStandardCustom</servlet-name>
+		<display-name>WebStandardCustom</display-name>
+		<description>Starting standard interface to PegaRULES, using custom authentication techniques</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--  COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>PRServletCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SecureServletName</param-name>
+			<param-value>PRServletCustomAuth</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>CustomSample</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>WebStandardExternal</servlet-name>
+		<display-name>WebStandardExternal</display-name>
+		<description>Starting standard interface to PegaRULES, using the legacy external authentication support</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--  COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRExternal</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>JAGLDAP</param-value>
+		</init-param>
+	</servlet>
+	<!-- New in 5.4 -->
+	<servlet>
+		<servlet-name>IAC</servlet-name>
+		<display-name>IAC</display-name>
+		<description>Internet Application Composer, using custom authentication techniques</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--  COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>IAC</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>IACAuthentication</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>MobileOAuth2</servlet-name>
+		<display-name>MobileOAuth2</display-name>
+		<description>OAuth 2.0 access token validation authentication service</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>PRMobileOAuth2</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>MobileOAuth2</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>PRChat</servlet-name>
+		<display-name>PRChat</display-name>
+		<description>Web Chat component, using custom authentication techniques</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>PRChat</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>PRChatAuthentication</param-value>
+		</init-param>
+	</servlet>
+    <servlet>
+        <servlet-name>DMEMashup</servlet-name>
+        <display-name>DMEMashup</display-name>
+        <description>Digital Messaging Edition component, using custom authentication techniques</description>
+        <servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+        <init-param>
+            <param-name>PegaEtierClass</param-name>
+            <param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+        </init-param>
+        <init-param>
+            <param-name>AuthenticationType</param-name>
+            <param-value>PRCustom</param-value>
+        </init-param>
+        <init-param>
+            <param-name>RuntimeServletName</param-name>
+            <param-value>DMEMashup</param-value>
+        </init-param>
+        <init-param>
+            <param-name>AuthService</param-name>
+            <param-value>PRDMEMashupAuthentication</param-value>
+        </init-param>
+    </servlet>
+	<!-- New in 5.3 -->
+	<!--Servlet definitions (3) for LDAP authentication using PRCustom scheme, reserved for configuration wizard -->
+	<servlet>
+		<servlet-name>WebLDAP1</servlet-name>
+		<display-name>WebLDAP1</display-name>
+		<description>Authentication using LDAP (reserved for configuration wizard)</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--  COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>WebLDAP1</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>PRWebLDAP1</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SecureServletName</param-name>
+			<param-value>PRWebLDAP1Auth</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>WebLDAP2</servlet-name>
+		<display-name>WebLDAP2</display-name>
+		<description>Authentication using LDAP (reserved for configuration wizard)</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--  COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>WebLDAP2</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>PRWebLDAP2</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SecureServletName</param-name>
+			<param-value>PRWebLDAP2Auth</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>WebLDAP3</servlet-name>
+		<display-name>WebLDAP3</display-name>
+		<description>Authentication using LDAP (reserved for configuration wizard)</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--  COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>WebLDAP3</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>PRWebLDAP3</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SecureServletName</param-name>
+			<param-value>PRWebLDAP3Auth</param-value>
+		</init-param>
+	</servlet>
+	<!-- Servlet definitions (5) for LDAP authentication using PRExternal scheme, reserved for configuration wizard -->
+	<servlet>
+		<servlet-name>WebStandardLDAP1</servlet-name>
+		<display-name>WebStandardLDAP1</display-name>
+		<description>Authentication using LDAP (reserved for configuration wizard)</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--  COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI 
+				Did a similar replace in various other places in this file
+			-->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRExternal</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>WebStandardLDAP1</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>WebStandardLDAP2</servlet-name>
+		<display-name>WebStandardLDAP2</display-name>
+		<description>Authentication using LDAP (reserved for configuration wizard)</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRExternal</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>WebStandardLDAP2</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>WebStandardLDAP3</servlet-name>
+		<display-name>WebStandardLDAP3</display-name>
+		<description>Authentication using LDAP (reserved for configuration wizard)</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRExternal</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>WebStandardLDAP3</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>WebStandardLDAP4</servlet-name>
+		<display-name>WebStandardLDAP4</display-name>
+		<description>Authentication using LDAP (reserved for configuration wizard)</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRExternal</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>WebStandardLDAP4</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>WebStandardLDAP5</servlet-name>
+		<display-name>WebStandardLDAP5</display-name>
+		<description>Authentication using LDAP (reserved for configuration wizard)</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRExternal</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>WebStandardLDAP5</param-value>
+		</init-param>
+	</servlet>
+	<!-- Portlet Servlet, using Pega's Portlet Custom Authentication -->
+	<servlet>
+		<servlet-name>PRPortletService</servlet-name>
+		<display-name>PRPortletService</display-name>
+		<description>Rule-Service-Portlet content service</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>PRPortletService</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>PRPortletService</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SecureServletName</param-name>
+			<param-value>PRPortletServiceAuth</param-value>
+		</init-param>
+	</servlet>
+	<!-- HTTP interface to PegaRULES -->	
+	<servlet>
+		<servlet-name>WebHTTPService</servlet-name>
+		<display-name>WebHTTPService</display-name>
+		<description>HTTP interface to PegaRULES, using internal authentication</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--param-value>com.pega.pegarules.services.http.HTTPService</param-value-->
+			<param-value>com.pega.pegarules.integration.engine.internal.services.http.HTTPService</param-value>
+		</init-param>
+		<init-param>
+			<param-name>CharacterEncoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<!-- Indicate that R-S-HTTP never handles static content-->
+		<init-param>
+			<param-name>HasStaticContent</param-name>
+			<param-value>false</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>WebRestService</servlet-name>
+		<display-name>WebRestService</display-name>
+		<description>Rest interface to PegaRULES, using internal authentication</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--param-value>com.pega.pegarules.services.http.HTTPService</param-value-->
+			<param-value>com.pega.pegarules.integration.engine.internal.services.http.HTTPService</param-value>
+		</init-param>
+		<init-param>
+			<param-name>CharacterEncoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<!-- Indicate that R-S-REST never handles static content-->
+		<init-param>
+			<param-name>HasStaticContent</param-name>
+			<param-value>false</param-value>
+		</init-param>
+	</servlet>
+	<!-- SOAP interface to PegaRULES -->	
+	<servlet>
+		<servlet-name>WebSOAP</servlet-name>
+		<display-name>WebSOAP</display-name>
+		<description>SOAP interface to PegaRULES, using internal authentication</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<param-value>com.pega.pegarules.integration.engine.internal.services.soap.SOAPService</param-value>
+		</init-param>
+		<init-param>
+			<param-name>CharacterEncoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>HasStaticContent</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<!-- Basic PegaRULES Authentication is the default
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRBasic</param-value>
+		</init-param>
+		-->
+	</servlet>
+	<servlet>
+		<servlet-name>WebSOAPContainerAuth</servlet-name>
+		<display-name>WebSOAPContainerAuth</display-name>
+		<description>SOAP interface to PegaRULES, using J2EE context information for authentication</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<param-value>com.pega.pegarules.integration.engine.internal.services.soap.SOAPService</param-value>
+		</init-param>
+		<init-param>
+			<param-name>CharacterEncoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>J2EEContext</param-value>
+		</init-param>
+	</servlet>
+	<!-- PegaRULES Development Tracer -->
+	<servlet>
+		<servlet-name>PRTraceServlet</servlet-name>
+		<display-name>PRTraceServlet</display-name>
+		<description>Interface into tracer operations</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!--  COMPONENTS: this was previously com.pega.pegarules.engine.tracer.TracerImpl -->
+			<param-value>com.pega.pegarules.monitor.internal.tracer.TracerImpl</param-value>
+		</init-param>
+	</servlet>
+	<!-- Diagnostic servlets -->
+	<servlet>
+		<servlet-name>DiagnosticData</servlet-name>
+		<display-name>DiagnosticData</display-name>
+		<description>A servlet used to serve files requested by a JMX client</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.DiagnosticDataBoot</servlet-class>
+	</servlet>
+	<!--  	the following diagnostic servlets are commented out because they are not typically
+			needed in a production environment. Enable them (and the corresponding servlet mappings
+			if needed for a specific application or use.
+	-->
+	<!--
+	<servlet>
+		<servlet-name>PRSOAPSimulator</servlet-name>
+		<display-name>PRSOAPSimulator</display-name>
+		<description>Simple servlet to help diagnose Rule-Connect-SOAP.</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.PRSOAPSimulator</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>SecManServlet</servlet-name>
+		<display-name>SecManServlet</display-name>
+		<description>RecordingSecurityManager servlet to display required permissions</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.SecManServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>SnoopServlet</servlet-name>
+		<display-name>SnoopServlet</display-name>
+		<description>Display information about the run-time environment</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.SnoopServletBoot</servlet-class>
+	</servlet>	
+	-->	
+	<!-- Test servlets -->
+	<!--
+	<servlet>
+		<servlet-name>PRServletTestExt</servlet-name>
+		<display-name>PRServletTestExt</display-name>
+		<description>TEST: interface to PegaRULES with external authentication</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<param-value>com.pega.pegarules.services.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRExternal</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>TestCustomAuth</param-value>
+		</init-param>
+	</servlet>
+	-->	
+	<!-- 
+	We have to explicitly define these as servlets because we need to map them later,
+	we don't have these requests to go into WebStandard which has a default mapping for all requests.
+	-->
+	<servlet>
+		<servlet-name>errorJSP</servlet-name>
+		<jsp-file>/diagnostic/error.jsp</jsp-file>
+	</servlet>	
+	<servlet>
+		<servlet-name>statusJSP</servlet-name>
+		<jsp-file>/diagnostic/status.jsp</jsp-file>
+	</servlet>	
+	<servlet>
+		<servlet-name>xmlStatusJSP</servlet-name>
+		<jsp-file>/diagnostic/xmlstatus.jsp</jsp-file>
+	</servlet>
+	<servlet>
+		<servlet-name>failIMG</servlet-name>
+		<jsp-file>/diagnostic/status_fail.gif</jsp-file>
+	</servlet>	
+	<servlet>
+		<servlet-name>goodIMG</servlet-name>
+		<jsp-file>/diagnostic/status_good.gif</jsp-file>
+	</servlet>	
+	<servlet>
+		<servlet-name>infoIMG</servlet-name>
+		<jsp-file>/diagnostic/status_info.gif</jsp-file>
+	</servlet>
+	<servlet>
+		<servlet-name>warnIMG</servlet-name>
+		<jsp-file>/diagnostic/status_warn.gif</jsp-file>
+	</servlet>	
+	<servlet>
+		<servlet-name>archiveInfo</servlet-name>
+		<jsp-file>/archive.info</jsp-file>
+	</servlet>	
+	<!-- New in 7.1.6 -->
+	<!--Servlet definitions (3) for Web SSO authentication -->
+	<servlet>
+		<servlet-name>sso</servlet-name>
+		<display-name>sso</display-name>
+		<description>sso</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!-- COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>StatusPage</param-name>
+			<param-value>/diagnostic/status.jsp</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>SAMLAuth</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>sso</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SecureServletName</param-name>
+			<param-value>sso</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>sso1</servlet-name>
+		<display-name>sso1</display-name>
+		<description>sso1</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!-- COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>StatusPage</param-name>
+			<param-value>/diagnostic/status.jsp</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>SAMLAuth1</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>sso1</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SecureServletName</param-name>
+			<param-value>sso1</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>sso2</servlet-name>
+		<display-name>sso2</display-name>
+		<description>sso2</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!-- COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>StatusPage</param-name>
+			<param-value>/diagnostic/status.jsp</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>SAMLAuth2</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>sso2</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SecureServletName</param-name>
+			<param-value>sso2</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>PRAuth</servlet-name>
+		<display-name>PRAuth</display-name>
+		<description>PRAuth</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<!-- COMPONENTS: This was previously com.pega.pegarules.services.HttpAPI -->
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PegaAuthentication</param-value>
+		</init-param>
+		<init-param>
+			<param-name>StatusPage</param-name>
+			<param-value>/diagnostic/status.jsp</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>PRAuth</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SecureServletName</param-name>
+			<param-value>PRAuth</param-value>
+		</init-param>
+	</servlet>
+	<!--
+		Kerberos settings 
+	 -->	
+	 <!-- 
+	<servlet>
+		<servlet-name>WebKerberos1</servlet-name>
+		<display-name>WebKerberos1</display-name>
+		<description>Authentication using Kerberos</description>
+		<servlet-class>com.pega.pegarules.internal.web.servlet.WebStandardBoot</servlet-class>
+		<init-param>
+			<param-name>PegaEtierClass</param-name>
+			<param-value>com.pega.pegarules.session.internal.engineinterface.service.HttpAPI</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthenticationType</param-name>
+			<param-value>PRCustom</param-value>
+		</init-param>
+		<init-param>
+			<param-name>AuthService</param-name>
+			<param-value>KerberosAuth</param-value>
+		</init-param>
+		<init-param>
+			<param-name>RuntimeServletName</param-name>
+			<param-value>PRWebKerberos1</param-value>
+		</init-param>
+		<init-param>
+			<param-name>SecureServletName</param-name>
+			<param-value>PRWebKerberos1Auth</param-value>
+		</init-param>
+	</servlet>	
+	-->
+	<!--
+		Standard Servlet Mapping
+	-->
+	<servlet-mapping>
+		<servlet-name>WebStandard</servlet-name>
+		<url-pattern>/PRServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandard</servlet-name>
+		<url-pattern>/PRServlet/*</url-pattern>
+	</servlet-mapping>
+	<!-- 
+		Async Servlet Mapping 
+	-->
+	
+ 	<servlet-mapping>
+		<servlet-name>WebStandardAsync</servlet-name>
+		<url-pattern>/PRPushServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardAsync</servlet-name>
+		<url-pattern>/PRPushServlet/*</url-pattern>
+	</servlet-mapping>
+	
+	<!--
+		Standard Servlet, but using J2EE Context Authentication
+	-->
+	<servlet-mapping>
+		<servlet-name>WebStandardContainerAuth</servlet-name>
+		<url-pattern>/PRServletContainerAuth</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardContainerAuth</servlet-name>
+		<url-pattern>/PRServletContainerAuth/*</url-pattern>
+	</servlet-mapping>
+	<!--
+		Standard Servlet, but using Basic HTTP Authentication over SSL
+	-->
+	<servlet-mapping>
+		<servlet-name>WebStandardSecureLogin</servlet-name>
+		<url-pattern>/PRServletProtected</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardSecureLogin</servlet-name>
+		<url-pattern>/PRServletProtected/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardSecureLogin</servlet-name>
+		<url-pattern>/PRServletProtectedAuth</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardSecureLogin</servlet-name>
+		<url-pattern>/PRServletProtectedAuth/*</url-pattern>
+	</servlet-mapping>
+	<!--
+		Standard Servlet, but using Custom Authentication
+	-->
+	<servlet-mapping>
+		<servlet-name>WebStandardCustom</servlet-name>
+		<url-pattern>/PRServletCustom</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardCustom</servlet-name>
+		<url-pattern>/PRServletCustom/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardCustom</servlet-name>
+		<url-pattern>/PRServletCustomAuth</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardCustom</servlet-name>
+		<url-pattern>/PRServletCustomAuth/*</url-pattern>
+	</servlet-mapping>
+	<!--
+		Standard Servlet, using Pega's External Authentication
+	-->
+	<servlet-mapping>
+		<servlet-name>WebStandardExternal</servlet-name>
+		<url-pattern>/PRServletExternal</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardExternal</servlet-name>
+		<url-pattern>/PRServletExternal/*</url-pattern>
+	</servlet-mapping>
+	<!--
+		IAC, but using Custom Authentication
+	-->
+	<servlet-mapping>
+		<servlet-name>IAC</servlet-name>
+		<url-pattern>/IAC</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>IAC</servlet-name>
+		<url-pattern>/IAC/*</url-pattern>
+	</servlet-mapping>
+	<!--
+		OAuth 2.0 access token auth service
+	-->
+	<servlet-mapping>
+		<servlet-name>MobileOAuth2</servlet-name>
+		<url-pattern>/PRMobileOAuth2</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>MobileOAuth2</servlet-name>
+		<url-pattern>/PRMobileOAuth2/*</url-pattern>
+	</servlet-mapping>
+	<!--
+		Web Chat component using Custom Authentication
+	-->
+	<servlet-mapping>
+		<servlet-name>PRChat</servlet-name>
+		<url-pattern>/PRChat</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>PRChat</servlet-name>
+		<url-pattern>/PRChat/*</url-pattern>
+	</servlet-mapping>
+    <!--
+    Digital Messaging Edition component using Custom Authentication
+    -->
+    <servlet-mapping>
+        <servlet-name>DMEMashup</servlet-name>
+        <url-pattern>/DMEMashup</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DMEMashup</servlet-name>
+        <url-pattern>/DMEMashup/*</url-pattern>
+    </servlet-mapping>
+	<!--
+		Standard Servlet, using Pega's LDAP Authentication (reserved)
+		These are based on the PRCustom authentication type
+	-->
+	<servlet-mapping>
+		<servlet-name>WebLDAP1</servlet-name>
+		<url-pattern>/PRWebLDAP1</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebLDAP1</servlet-name>
+		<url-pattern>/PRWebLDAP1/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebLDAP1</servlet-name>
+		<url-pattern>/PRWebLDAP1Auth</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebLDAP1</servlet-name>
+		<url-pattern>/PRWebLDAP1Auth/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebLDAP2</servlet-name>
+		<url-pattern>/PRWebLDAP2</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebLDAP2</servlet-name>
+		<url-pattern>/PRWebLDAP2/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebLDAP2</servlet-name>
+		<url-pattern>/PRWebLDAP2Auth</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebLDAP2</servlet-name>
+		<url-pattern>/PRWebLDAP2Auth/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebLDAP3</servlet-name>
+		<url-pattern>/PRWebLDAP3</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebLDAP3</servlet-name>
+		<url-pattern>/PRWebLDAP3/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebLDAP3</servlet-name>
+		<url-pattern>/PRWebLDAP3Auth</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebLDAP3</servlet-name>
+		<url-pattern>/PRWebLDAP3Auth/*</url-pattern>
+	</servlet-mapping>
+	<!--
+		Standard Servlet, using Pega's LDAP Authentication (reserved)
+		These are based on the old PRExternal authentication type
+	-->
+	<servlet-mapping>
+		<servlet-name>WebStandardLDAP1</servlet-name>
+		<url-pattern>/PRServletLDAP1</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardLDAP1</servlet-name>
+		<url-pattern>/PRServletLDAP1/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardLDAP2</servlet-name>
+		<url-pattern>/PRServletLDAP2</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardLDAP2</servlet-name>
+		<url-pattern>/PRServletLDAP2/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardLDAP3</servlet-name>
+		<url-pattern>/PRServletLDAP3</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardLDAP3</servlet-name>
+		<url-pattern>/PRServletLDAP3/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardLDAP4</servlet-name>
+		<url-pattern>/PRServletLDAP4</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardLDAP4</servlet-name>
+		<url-pattern>/PRServletLDAP4/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardLDAP5</servlet-name>
+		<url-pattern>/PRServletLDAP5</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandardLDAP5</servlet-name>
+		<url-pattern>/PRServletLDAP5/*</url-pattern>
+	</servlet-mapping>
+	<!--Standard Servlet mapping, using Web SSO authentication-->
+	<servlet-mapping>
+		<servlet-name>sso</servlet-name>
+		<url-pattern>/sso</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>sso</servlet-name>
+		<url-pattern>/sso/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>sso1</servlet-name>
+		<url-pattern>/sso1</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>sso1</servlet-name>
+		<url-pattern>/sso1/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>sso2</servlet-name>
+		<url-pattern>/sso2</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>sso2</servlet-name>
+		<url-pattern>/sso2/*</url-pattern>
+	</servlet-mapping>
+	<!--  New PegaAuthentication scheme in 7.4 -->
+	<servlet-mapping>
+		<servlet-name>PRAuth</servlet-name>
+		<url-pattern>/PRAuth</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>PRAuth</servlet-name>
+		<url-pattern>/PRAuth/*</url-pattern>
+	</servlet-mapping>
+	<!-- Portlet Servlet, using Pega's Portlet Custom Authentication -->
+	<servlet-mapping>
+		<servlet-name>PRPortletService</servlet-name>
+		<url-pattern>/PRPortletService</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>PRPortletService</servlet-name>
+		<url-pattern>/PRPortletService/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>PRPortletService</servlet-name>
+		<url-pattern>/PRPortletServiceAuth</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>PRPortletService</servlet-name>
+		<url-pattern>/PRPortletServiceAuth/*</url-pattern>
+	</servlet-mapping>
+	<!-- HTTP service -->	
+	<servlet-mapping>
+		<servlet-name>WebHTTPService</servlet-name>
+		<url-pattern>/PRHTTPService/*</url-pattern>
+	</servlet-mapping>
+	<!-- REST service -->
+	<servlet-mapping>
+		<servlet-name>WebRestService</servlet-name>
+		<url-pattern>/PRRestService/*</url-pattern>
+	</servlet-mapping>
+	<!-- SOAP interface to PegaRULES -->	
+	<servlet-mapping>
+		<servlet-name>WebSOAP</servlet-name>
+		<url-pattern>/PRSOAPServlet/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebSOAPContainerAuth</servlet-name>
+		<url-pattern>/PRSOAPServletContainerAuth</url-pattern>
+	</servlet-mapping>
+	<!-- PegaRULES Development Tracer -->
+	<servlet-mapping>
+		<servlet-name>PRTraceServlet</servlet-name>
+		<url-pattern>/PRTraceServlet</url-pattern>
+	</servlet-mapping>
+	<!-- Diagnostic servlets -->
+	<servlet-mapping>
+		<servlet-name>DiagnosticData</servlet-name>
+		<url-pattern>/DiagnosticData</url-pattern>
+	</servlet-mapping>
+	<!--
+	<servlet-mapping>
+		<servlet-name>PRSOAPSimulator</servlet-name>
+		<url-pattern>/PRSOAPSimulator</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SecManServlet</servlet-name>
+		<url-pattern>/SecManDisplay</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SnoopServlet</servlet-name>
+		<url-pattern>/SnoopServlet</url-pattern>
+	</servlet-mapping>
+	-->	
+	<!-- Test servlets -->
+	<!--
+	<servlet-mapping>
+		<servlet-name>PRServletTestExt</servlet-name>
+		<url-pattern>/PRServletTestExt/*</url-pattern>
+	</servlet-mapping>
+	-->
+	<servlet-mapping>
+		<servlet-name>errorJSP</servlet-name>
+		<url-pattern>/diagnostic/error.jsp</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>statusJSP</servlet-name>
+		<url-pattern>/diagnostic/status.jsp</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>xmlStatusJSP</servlet-name>
+		<url-pattern>/diagnostic/xmlstatus.jsp</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>failIMG</servlet-name>
+		<url-pattern>/diagnostic/status_fail.gif</url-pattern>
+	</servlet-mapping>	
+	<servlet-mapping>
+		<servlet-name>goodIMG</servlet-name>
+		<url-pattern>/diagnostic/status_good.gif</url-pattern>
+	</servlet-mapping>	
+	<servlet-mapping>
+		<servlet-name>infoIMG</servlet-name>
+		<url-pattern>/diagnostic/status_info.gif</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>warnIMG</servlet-name>
+		<url-pattern>/diagnostic/status_warn.gif</url-pattern>
+	</servlet-mapping>	
+	<servlet-mapping>
+		<servlet-name>archiveInfo</servlet-name>
+		<url-pattern>/archive.info</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStandard</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+	<!--
+		Kerberos settings 
+	 -->
+	 <!-- 
+	<servlet-mapping>
+		<servlet-name>WebKerberos1</servlet-name>
+		<url-pattern>/PRWebKerberos1</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebKerberos1</servlet-name>
+		<url-pattern>/PRWebKerberos1/*</url-pattern>
+	</servlet-mapping>	
+	 -->
+	<!--
+		MIME Type Definitions
+		Certain application servers include a limited amount of filetype mappings; this
+		list is included to augment what is shipped with the application server.
+	-->
+	<mime-mapping>
+		<extension>xml</extension>
+		<mime-type>text/xml</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>css</extension>
+		<mime-type>text/css</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>doc</extension>
+		<mime-type>application/msword</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>docm</extension>
+		<mime-type>application/vnd.ms-word.document.macroEnabled.12</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>docx</extension>
+		<mime-type>application/vnd.openxmlformats-officedocument.wordprocessingml.document</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>dotm</extension>
+		<mime-type>application/vnd.ms-word.template.macroEnabled.12</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>dotx</extension>
+		<mime-type>application/vnd.openxmlformats-officedocument.wordprocessingml.template</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>xlsm</extension>
+		<mime-type>application/vnd.ms-excel.sheet.macroEnabled.12</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>xlsx</extension>
+		<mime-type>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>xltm</extension>
+		<mime-type>application/vnd.ms-excel.template.macroEnabled.12</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>xltx</extension>
+		<mime-type>application/vnd.openxmlformats-officedocument.spreadsheetml.template</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>xlsb</extension>
+		<mime-type>application/vnd.ms-excel.sheet.binary.macroEnabled.12</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>pptx</extension>
+		<mime-type>application/vnd.openxmlformats-officedocument.presentationml.presentation</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>pptm</extension>
+		<mime-type>application/vnd.ms-powerpoint.presentation.macroEnabled.12</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>ppsx</extension>
+		<mime-type>application/vnd.openxmlformats-officedocument.presentationml.slideshow</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>ppsm</extension>
+		<mime-type>application/vnd.ms-powerpoint.slideshow.macroEnabled.12</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>potx</extension>
+		<mime-type>application/vnd.openxmlformats-officedocument.presentationml.template</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>potm</extension>
+		<mime-type>application/vnd.ms-powerpoint.template.macroEnabled.12</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>gz</extension>
+		<mime-type>application/x-gzip</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>htc</extension>
+		<mime-type>text/x-component</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>js</extension>
+		<mime-type>text/javascript</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>wsdl</extension>
+		<mime-type>text/xml</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>pdf</extension>
+		<mime-type>application/pdf</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>tif</extension>
+		<mime-type>image/tiff</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>tiff</extension>
+		<mime-type>image/tiff</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>png</extension>
+		<mime-type>image/png</mime-type>
+	</mime-mapping>
+	<!-- 12-Oct-05 OLSOK
+		The Servlet 2.4 xsd contains a validation pattern for
+		mime-type that does not permit a '+' character. WebLogic 9
+		validates the web.xml file against the official schema
+		(irrespective of what is specified in the web.xml file itself)
+		and refuses to deploy the application. PegaRULES v5.1
+		special cases the svg and svgz extensions in static
+		content handling.
+		21-Apr-11 OLSOK
+		The original web-app_2_4.xsd in javax/servlet/resources (9/3/2003) constrains mime-type
+		with the pattern: <xsd:pattern value="[\p{L}\-\p{Nd}]+/[\p{L}\-\p{Nd}\.]+"/>
+		Later versions of the .xsd (at some time prior to 2008) constrain mime-type with the pattern
+		<xsd:pattern value="[^\p{Cc}^\s]+/[^\p{Cc}^\s]+"/> 
+	<mime-mapping>
+		<extension>svg</extension>
+		<mime-type>image/svg+xml</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>svgz</extension>
+		<mime-type>image/svg+xml</mime-type>
+	</mime-mapping>
+	-->
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+	<!-- Error pages -->
+	<error-page>
+		<!--exception-type>java.lang.Throwable</exception-type  per WebSphere, must be Exception type-->
+		<exception-type>java.lang.Exception</exception-type>
+		<location>/diagnostic/error.jsp</location>
+	</error-page>
+	<!-- JDBC DataSources (java:comp/env/jdbc) -->
+	<!--NoThin start-->
+	<resource-ref id="ResourceRef_1">
+		<description>PegaRULES datasource</description>
+		<lookup-name>java:jboss/PegaRULES</lookup-name>
+		<res-ref-name>jdbc/PegaRULES</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope> <!--  Shareable is default -->
+	</resource-ref>
+	<resource-ref id="ResourceRef_2">
+		<description>PegaRULES Admin datasource</description>
+		<lookup-name>java:jboss/AdminPegaRULES</lookup-name>
+		<res-ref-name>jdbc/AdminPegaRULES</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope> <!--  Shareable is default -->
+	</resource-ref>
+	<!--NoThin end-->
+	<resource-ref id="ResourceRef_3">
+		<description>Database-based File Access</description>
+		<res-ref-name>jdbc/PRFileStore</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope> <!--  Shareable is default -->
+	</resource-ref>
+		<resource-ref id="ResourceRef_5">
+		<description>location of prlog4j2.xml file</description>          
+		<res-ref-name>url/pegarules.logging.configuration</res-ref-name>
+		<res-type>java.net.URL</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+	<resource-ref id="ResourceRef_6">
+		<description>location of folder to be used for PegaRULES temporary workspace</description>          
+		<res-ref-name>url/initialization/explicittempdir</res-ref-name>
+		<res-type>java.net.URL</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+	<resource-ref id="ResourceRef_7">
+		<description>location of prconfig.xml file</description>          
+		<res-ref-name>url/pegarules.config</res-ref-name>
+		<res-type>java.net.URL</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+	<resource-ref id="ResourceRef_8">
+		<description>location of pegarules.keyring file</description>          
+		<res-ref-name>url/pegarules.keyring</res-ref-name>
+		<res-type>java.net.URL</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+	<resource-ref id="ResourceRef_9">
+		<description>location of prmbeans.properties file</description>          
+		<res-ref-name>url/prmbeans.security</res-ref-name>
+		<res-type>java.net.URL</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+	<resource-ref id="ResourceRef_10">
+		<description>location of prbootstrap.properties file</description>          
+		<res-ref-name>url/pegarules.bootstrap</res-ref-name>
+		<res-type>java.net.URL</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+	<!--
+		PRSecuredBasic Authentication Servlet
+		This is the WebStandard servlet, but specially configured for this case
+	-->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRSecuredBasic</web-resource-name>
+			<url-pattern>/PRServletProtected</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRSecuredBasic</web-resource-name>
+			<url-pattern>/PRServletProtected/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRSecuredBasicAuth</web-resource-name>
+			<url-pattern>/PRServletProtectedAuth</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL required</description>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRSecuredBasicAuth</web-resource-name>
+			<url-pattern>/PRServletProtectedAuth/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL required</description>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<!--
+		PRCustom Authentication Servlet
+		This is the WebStandard servlet, but specially configured for possible SSL use
+	-->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRCustom</web-resource-name>
+			<url-pattern>/PRServletCustom</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRCustom</web-resource-name>
+			<url-pattern>/PRServletCustom/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRCustomAuth</web-resource-name>
+			<url-pattern>/PRServletCustomAuth</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL required</description>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRCustomAuth</web-resource-name>
+			<url-pattern>/PRServletCustomAuth/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL required</description>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<!--
+		Portlet Servlet but specially configured for possible SSL use
+	-->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRPortlet</web-resource-name>
+			<url-pattern>/PRPortletService</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRPortlet</web-resource-name>
+			<url-pattern>/PRPortletService/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRPortletAuth</web-resource-name>
+			<url-pattern>/PRPortletServiceAuth</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL required</description>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRPortletAuth</web-resource-name>
+			<url-pattern>/PRPortletServiceAuth/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL required</description>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<!--
+		PRCustom LDAP (1) Authentication Servlet
+		This is the WebStandard servlet, but specially configured for possible SSL use
+	-->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRLDAP1</web-resource-name>
+			<url-pattern>/PRWebLDAP1</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRLDAP1</web-resource-name>
+			<url-pattern>/PRWebLDAP1/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRLDAP1Auth</web-resource-name>
+			<url-pattern>/PRWebLDAP1Auth</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL required</description>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRLDAP1Auth</web-resource-name>
+			<url-pattern>/PRWebLDAP1Auth/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL required</description>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<!--
+		PRCustom LDAP (2) Authentication Servlet
+		This is the WebStandard servlet, but specially configured for possible SSL use
+	-->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRLDAP2</web-resource-name>
+			<url-pattern>/PRWebLDAP2</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRLDAP2</web-resource-name>
+			<url-pattern>/PRWebLDAP2/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRLDAP2Auth</web-resource-name>
+			<url-pattern>/PRWebLDAP2Auth</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL required</description>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRLDAP2Auth</web-resource-name>
+			<url-pattern>/PRWebLDAP2Auth/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL required</description>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<!--
+		PRCustom LDAP (3) Authentication Servlet
+		This is the WebStandard servlet, but specially configured for possible SSL use
+	-->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRLDAP3</web-resource-name>
+			<url-pattern>/PRWebLDAP3</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRLDAP3</web-resource-name>
+			<url-pattern>/PRWebLDAP3/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRLDAP3Auth</web-resource-name>
+			<url-pattern>/PRWebLDAP3Auth</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL required</description>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRLDAP3Auth</web-resource-name>
+			<url-pattern>/PRWebLDAP3Auth/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL required</description>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<!--
+		J2EE Context-based Authentication configuration
+	-->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PegaRULES Users</web-resource-name>
+			<description>Users authenticated by the application server, for use with PegaRULES</description>
+			<url-pattern>/PRServletContainerAuth/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>PegaAuthUser</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>SOAP Service Users</web-resource-name>
+			<description>Users authenticated by the application server, for use with SOAP Services</description>
+			<url-pattern>/PRSOAPServletContainerAuth</url-pattern>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>PegaAuthUser</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<!--
+		Restrict Diagnostic Data to administrative users
+	-->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Diagnostic Data</web-resource-name>
+			<description>Serves diagnostic files generated by the JMX client</description>
+			<url-pattern>/DiagnosticData</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>PegaDiagnosticUser</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<!--
+		Kerberos settings 
+	 -->
+	 <!-- 
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRKerberos1</web-resource-name>
+			<url-pattern>/PRWebKerberos1</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>PRKerberos1</web-resource-name>
+			<url-pattern>/PRWebKerberos1/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<user-data-constraint>
+			<description>SSL not required</description>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>	
+	 -->
+	<!--
+		Web Container Authentication
+		PegaRULES should only be used with Basic HTTP authentication. Form-based authenticaiton
+		will function, but the designer desktop may not function properly
+	-->
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name>PegaRULES</realm-name>
+	</login-config>
+	<!-- The role of an authenticated PegaRULES User -->
+	<security-role>
+		<role-name>PegaAuthUser</role-name>
+	</security-role>
+	<!-- The role for users who need access to download log/trace files generated by the engine -->
+	<security-role>
+		<role-name>PegaDiagnosticUser</role-name>
+	</security-role>
+		<env-entry>
+		<description><![CDATA[env name for default JNDI provider, used if unknown appserver]]> </description>
+		<env-entry-name>pega/default/jndiProviderRef</env-entry-name>
+		<!-- value deliberately blank for standard deploy - see also webthinclient.xml -->
+		<env-entry-value></env-entry-value>
+		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
+	<env-entry>
+		<description><![CDATA[WebLogic JNDI provider url]]></description>
+		<env-entry-name>pega/weblogic/jndiProviderURL</env-entry-name>
+		<env-entry-value>t3://localhost:7001</env-entry-value>
+		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
+	<env-entry>
+		<description><![CDATA[WebSphere JNDI provider url]]></description>
+		<env-entry-name>pega/websphere/jndiProviderURL</env-entry-name>
+		<env-entry-value>iiop://localhost:2809</env-entry-value>
+		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
+	<env-entry>
+		<description><![CDATA[JBoss JNDI provider url]]></description>
+		<env-entry-name>pega/jboss/jndiProviderURL</env-entry-name>
+		<env-entry-value>jnp://localhost:1099</env-entry-value>
+		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
+	<env-entry>
+		<description><![CDATA[Tomcat/JBoss JNDI provider url]]></description>
+		<env-entry-name>pega/tomcat/jndiProviderURL</env-entry-name>
+		<env-entry-value>jnp://localhost:1099</env-entry-value>
+		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
+	<env-entry>
+		<description><![CDATA[Tomcat/JBoss JNDI provider factory]]> </description>
+		<env-entry-name>pega/tomcat/jndiProviderFactory</env-entry-name>
+		<env-entry-value>org.jnp.interfaces.NamingContextFactory</env-entry-value>
+		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
+	<env-entry>
+		<description><![CDATA[JNDI lookup order: LOCAL (1-server Etier), REMOTE (2-server Etier), POJO (Web tier)]]> </description>
+		<env-entry-name>pega/preferObjectLookup</env-entry-name>
+		<env-entry-value>LOCAL</env-entry-value>
+		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
+		
+	<!--
+		SPNEGO Kerberos filters 
+	 -->
+	 <!-- 
+	<filter>
+    	<filter-name>SpnegoHttpFilter</filter-name>
+    	<filter-class>net.sourceforge.spnego.SpnegoHttpFilter</filter-class>
+
+    	<init-param>
+        	<param-name>spnego.allow.basic</param-name>
+        	<param-value>true</param-value>
+    	</init-param>
+    	
+    	<init-param>
+        	<param-name>spnego.allow.unsecure.basic</param-name>
+        	<param-value>true</param-value>
+    	</init-param>
+    	    
+    	<init-param>
+        	<param-name>spnego.allow.localhost</param-name>
+        	<param-value>true</param-value>
+    	</init-param>   
+
+	    <init-param>
+        	<param-name>spnego.allow.delegation</param-name>
+        	<param-value>true</param-value>
+    	</init-param>
+    	
+    	<init-param>
+        	<param-name>spnego.prompt.ntlm</param-name>
+        	<param-value>true</param-value>
+    	</init-param>
+    	    
+    	<init-param>
+        	<param-name>spnego.login.client.module</param-name>
+        	<param-value>spnego-client</param-value>
+    	</init-param>
+    	
+    	<init-param>
+        	<param-name>spnego.login.server.module</param-name>
+        	<param-value>spnego-server</param-value>
+    	</init-param>    	
+    	
+    	<init-param>
+        	<param-name>spnego.krb5.conf</param-name>
+        	<param-value>krb5.conf</param-value>
+    	</init-param>
+    
+    	<init-param>
+        	<param-name>spnego.login.conf</param-name>
+        	<param-value>login.conf</param-value>
+    	</init-param>
+    
+    	<init-param>
+        	<param-name>spnego.logger.level</param-name>
+        	<param-value>1</param-value>
+    	</init-param>
+	</filter>	
+	 
+	<filter-mapping>
+    	<filter-name>SpnegoHttpFilter</filter-name>
+    	<url-pattern>/PRWebKerberos1/*</url-pattern>
+	</filter-mapping>	
+	 -->
+</web-app>

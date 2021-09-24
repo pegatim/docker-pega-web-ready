@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: weblogic.xml,v 1.2 2010-08-11 20:23:01 greek Exp $  -->
+<!DOCTYPE weblogic-web-app PUBLIC "-//BEA Systems, Inc.//DTD Web Application 8.1//EN" 
+	"http://www.bea.com/servers/wls810/dtd/weblogic810-web-jar.dtd">
+<weblogic-web-app>
+	<description><![CDATA[PegaRULES Web Tier]]></description>
+	<weblogic-version>8.1</weblogic-version>
+	
+	<!--
+		Note GajnJ: I commented this out to deferr all security management to the authentication
+		provider. I'm seeing some strange beavhior on WebLogic with this.
+	<security-role-assignment>
+		<role-name>PegaAuthUser</role-name>
+		<principal-name>PegaAuthUsers</principal-name>
+	</security-role-assignment> -->
+	
+	<reference-descriptor>
+		<resource-description>
+			<res-ref-name>url/pegarules.logging.configuration</res-ref-name>
+			<jndi-name>file:/nul</jndi-name>
+		</resource-description>
+		<resource-description>
+			<res-ref-name>url/initialization/explicittempdir</res-ref-name>
+			<jndi-name>file:/nul</jndi-name>
+		</resource-description>
+		<resource-description>
+			<res-ref-name>url/pegarules.config</res-ref-name>
+			<jndi-name>file:/nul</jndi-name>
+		</resource-description>
+		<resource-description>
+			<res-ref-name>url/pegarules.bootstrap</res-ref-name>
+			<jndi-name>file:/nul</jndi-name>
+		</resource-description>
+		<resource-description>
+			<res-ref-name>url/pegarules.keyring</res-ref-name>
+			<jndi-name>file:/nul</jndi-name>
+		</resource-description>
+		<resource-description>
+			<res-ref-name>url/prmbeans.security</res-ref-name>
+			<jndi-name>file:/nul</jndi-name>
+		</resource-description>
+		<resource-description>
+			<res-ref-name>jdbc/PegaRULES</res-ref-name>
+			<jndi-name>jdbc/PegaRULES</jndi-name>
+		</resource-description>
+		<resource-description>
+			<res-ref-name>jdbc/AdminPegaRULES</res-ref-name>
+			<jndi-name>jdbc/AdminPegaRULES</jndi-name>
+		</resource-description>
+		<resource-description>
+			<res-ref-name>jdbc/PRFileStore</res-ref-name>
+			<jndi-name>url/pega/none</jndi-name>
+		</resource-description>
+		<resource-description>
+			<res-ref-name>eis/PRAdapterConnectionFactory</res-ref-name>
+			<jndi-name>eis/PRAdapterConnectionFactory</jndi-name>
+		</resource-description>
+	</reference-descriptor>
+	<session-descriptor>
+	</session-descriptor>
+
+	<container-descriptor>
+		<servlet-reload-check-secs>-1</servlet-reload-check-secs>
+	</container-descriptor>
+	
+	<context-root>prweb</context-root>
+</weblogic-web-app>
