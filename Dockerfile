@@ -193,7 +193,7 @@ COPY jboss-eap/7.3/bin/standalone.conf /usr/local/jboss-eap/bin/standalone.conf
 COPY jboss-eap/7.3/modules/system/layers/base/javax/activation/api/main/module.xml  /usr/local/jboss-eap/modules/system/layers/base/javax/activation/api/main/module.xml
 COPY jboss-eap/7.3/standalone/configuration/standalone.xml /usr/local/jboss-eap/standalone/configuration/standalone.xml
 ADD prweb /opt/pega/prweb/
-RUN cd /opt/pega/prweb/8.5.4 && jar -cvf /usr/local/jboss-eap/standalone/deployments/prweb.war prweb
+RUN cd /opt/pega/prweb/8.5.4 && jar -cvf /usr/local/jboss-eap/standalone/deployments/prweb.war *
 RUN chmod 775 /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main /usr/local/jboss-eap/standalone/pega
 RUN chmod 664 /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/module.xml \
     /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/postgresql-42.2.12.jar \
