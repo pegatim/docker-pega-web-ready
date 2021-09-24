@@ -7,13 +7,13 @@
 	<env name="database/databases/PegaDATA/dataSource" value="java:comp/env/jdbc/PegaRULES"/>
 
 	<!-- Pega search url -->
-	<env name="prconfig/database/databases/pegasearch/searchEndpoint" value="http://pega-search" type="java.lang.String"/>
+	<env name="database/databases/pegasearch/searchEndpoint" value="http://pega-search"/>
 
 	<!-- Pega default -->
-	<env name="prconfig/session/ha/quiesce/strategy/shutdownquiesce" value="true" type="java.lang.String"/>
+	<!-- <env name="prconfig/session/ha/quiesce/strategy/shutdownquiesce" value="true" type="java.lang.String"/>
 	<env name="prconfig/session/ha/enabled" value="true" type="java.lang.String"/>
-	<env name="prconfig/dsm/services/stream/pyBaseLogPath" value="/opt/pega/kafkadata/data" type="java.lang.String" />
-	<env name="prconfig/cloud/isNodeAgnosticAdminStudio" value="true" type="java.lang.String"/>
+	<env name="prconfig/dsm/services/stream/pyBaseLogPath" value="/opt/pega/kafkadata/data" type="java.lang.String"/>
+	<env name="prconfig/cloud/isNodeAgnosticAdminStudio" value="true" type="java.lang.String"/> -->
 	
 	<!-- The below setting is deprecated.
 	A new concept of node classification has been introduced which can be enabled by setting the nodetype via JVM argument, e.g. -DNodeType=BackgroundProcessing -->
