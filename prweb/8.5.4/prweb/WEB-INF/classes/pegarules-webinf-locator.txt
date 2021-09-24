@@ -1,1 +1,0 @@
-Used-For: Locating the WEB-INF/classes directory in exploded deployments
