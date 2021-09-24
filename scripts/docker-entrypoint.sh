@@ -79,7 +79,7 @@ if [ "$JDBC_DRIVER_URI" != "" ]; then
 fi
 
 # Setup DB_TYPE_LONG for JBoss driver
-if [ "$DB_TYPE" == "postgres" ]; then
+if [ "$DB_TYPE" = "postgres" ]; then
   export DB_TYPE_LONG="postgresql"
 fi
 
