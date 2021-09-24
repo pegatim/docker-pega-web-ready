@@ -5,6 +5,15 @@
 	<env name="initialization/settingsource" value="merged" />
 	<env name="database/databases/PegaRULES/dataSource" value="java:comp/env/jdbc/PegaRULES"/>
 	<env name="database/databases/PegaDATA/dataSource" value="java:comp/env/jdbc/PegaRULES"/>
+
+	<!-- Pega search url -->
+	<Environment name="prconfig/database/databases/pegasearch/searchEndpoint" value="http://pega-search" type="java.lang.String"/>
+
+	<!-- Pega default -->
+	<Environment name="prconfig/session/ha/quiesce/strategy/shutdownquiesce" value="true" type="java.lang.String"/>
+	<Environment name="prconfig/session/ha/enabled" value="true" type="java.lang.String"/>
+	<Environment name="prconfig/dsm/services/stream/pyBaseLogPath" value="/opt/pega/kafkadata/data" type="java.lang.String" />
+	<Environment name="prconfig/cloud/isNodeAgnosticAdminStudio" value="true" type="java.lang.String"/>
 	
 	<!-- The below setting is deprecated.
 	A new concept of node classification has been introduced which can be enabled by setting the nodetype via JVM argument, e.g. -DNodeType=BackgroundProcessing -->
