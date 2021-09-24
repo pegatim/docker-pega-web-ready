@@ -78,6 +78,11 @@ if [ "$JDBC_DRIVER_URI" != "" ]; then
     done
 fi
 
+# Setup DB_TYPE_LONG for JBoss driver
+if [ "$DB_TYPE" == "postgres" ]; then
+  export DB_TYPE_LONG="postgresql"
+fi
+
 # For JBoss, lib files shold be done throught JBoss Modules
 #
 # # copy jars mounted in the /opt/pega/lib directory of container to ${CATALINA_HOME}/lib
