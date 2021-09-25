@@ -123,6 +123,7 @@ ENV PEGA_DIAGNOSTIC_USER='' \
     PEGA_DIAGNOSTIC_PASSWORD=''
 
 # Parameterize variables to customize the JBoss runtime
+# PEGA_DEPLOYMENT_DIR not used in JBoss as of yet
 ENV JAVA_OPTS="" \
     MAX_HEAP="4096m" \
     INITIAL_HEAP="2048m" \
@@ -132,7 +133,7 @@ ENV JAVA_OPTS="" \
     NODE_TIER="" \
     NODE_SETTINGS="" \
     PEGA_APP_CONTEXT_PATH=prweb \
-    PEGA_DEPLOYMENT_DIR=${JBOSS_HOME}/standalone/pega #Not used in JBoss as of yet
+    PEGA_DEPLOYMENT_DIR=${JBOSS_HOME}/standalone/pega
 
 # Configure Remote JMX support and bind to port 9001
 ENV JMX_PORT=9001 \
