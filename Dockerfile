@@ -200,9 +200,13 @@ COPY jboss-eap/7.3/standalone/configuration/standalone.xml /usr/local/jboss-eap/
 #  Copy customized prweb files/dirs
 COPY prweb/ /opt/pega/prweb/
 
+# prweb ownership and permission
+RUN cd /opt/pega && find ./prweb -type d -exec chmod 0770 {} \;
+RUN cd /opt/pega && find ./prweb -type f -exec chmod 0660 {} \;
+
 # running in pegauser context
 # JBoss ownership and file permission
-RUN cd /usr/local && find ./jboss-eap -type d -exec chmod 0775 {} \;
+RUN cd /usr/local && find ./jboss-eap -type d -exec chmod 0770 {} \;
 RUN cd /usr/local && find ./jboss-eap -type f -exec chmod 0660 {} \;
 RUN chmod -R 775 /usr/local/jboss-eap/bin
 RUN chmod 770 /scripts/docker-entrypoint.sh
