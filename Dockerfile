@@ -33,9 +33,8 @@ ENV PEGA_DOCKER_VERSION=${VERSION:-CUSTOM_BUILD}
 RUN groupadd -g 9001 pegauser && \
     useradd -r -u 9001 -g pegauser pegauser
 
-# Install JBoss & related
-
-RUN chown -R pegauser.root /usr/local/jboss-eap
+#Installing dockerize for generating config files using templates
+RUN curl -sL https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz | tar zxf - -C /bin/
 
 # Create directory for storing heapdump
 RUN mkdir -p /heapdumps  && \
@@ -94,7 +93,7 @@ ENV JDBC_URL='' \
     DB_PASSWORD='' \
     JDBC_CLASS=''
 
-# # For testing only
+# For testing use
 # ENV JDBC_URL=jdbc:postgresql://10.88.0.1/pega853
 # ENV JDBC_CLASS=org.postgresql.
 # ENV DB_USERNAME=pegaadmin
@@ -133,7 +132,7 @@ ENV JAVA_OPTS="" \
     NODE_TIER="" \
     NODE_SETTINGS="" \
     PEGA_APP_CONTEXT_PATH=prweb \
-    PEGA_DEPLOYMENT_DIR=${JBOSS_HOME}/webapps/prweb
+    PEGA_DEPLOYMENT_DIR=${JBOSS_HOME}/standalone/pega #Not used in JBoss as of yet
 
 # Configure Remote JMX support and bind to port 9001
 ENV JMX_PORT=9001 \
@@ -176,36 +175,39 @@ RUN mkdir -p /opt/pega/prometheus && \
     chown -R pegauser /opt/pega/prometheus && \
     chmod 440 /opt/pega/prometheus/jmx_prometheus_javaagent.jar
     
-# # Remove existing webapps
+# Remove existing webapps
 # RUN rm -rf ${JBOSS_HOME}/webapps/*
 
-# # Copy in tomcat configuration and application files
+# Copy in tomcat configuration and application files
 # COPY tomcat-webapps ${JBOSS_HOME}/webapps/
 # COPY tomcat-bin ${JBOSS_HOME}/bin/
 # COPY tomcat-conf ${JBOSS_HOME}/conf/
+# /scripts still used by JBoss
 COPY scripts /scripts
 
+# JBoss deployment files.
+# Todo: WAR deployment for now. Future to include EAR deployment.
 RUN mkdir -p /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main
 RUN mkdir /usr/local/jboss-eap/standalone/pega
+
+# Todo: update to use JDBC_URI and ability to use other non-Postgresql JDBC modules.
 COPY jboss-eap/7.3/modules/system/layers/base/org/postgresql/main/module.xml /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/module.xml
 COPY jboss-eap/7.3/modules/system/layers/base/org/postgresql/main/postgresql-42.2.12.jar /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/postgresql-42.2.12.jar
-COPY jboss-eap/7.3/bin/standalone.conf /usr/local/jboss-eap/bin/standalone.conf
 COPY jboss-eap/7.3/modules/system/layers/base/javax/activation/api/main/module.xml  /usr/local/jboss-eap/modules/system/layers/base/javax/activation/api/main/module.xml
+COPY jboss-eap/7.3/bin/standalone.conf /usr/local/jboss-eap/bin/standalone.conf
 COPY jboss-eap/7.3/standalone/configuration/standalone.xml /usr/local/jboss-eap/standalone/configuration/standalone.xml
-ADD prweb /opt/pega/prweb/
-RUN cd /opt/pega/prweb/8.5.4 && jar -cvf /usr/local/jboss-eap/standalone/deployments/prweb.war *
-RUN chmod 775 /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main /usr/local/jboss-eap/standalone/pega
-RUN chmod 664 /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/module.xml \
-    /usr/local/jboss-eap/modules/system/layers/base/org/postgresql/main/postgresql-42.2.12.jar \
-    /usr/local/jboss-eap/bin/standalone.conf \
-    /usr/local/jboss-eap/modules/system/layers/base/javax/activation/api/main/module.xml \
-    /usr/local/jboss-eap/standalone/configuration/standalone.xml \
-    /usr/local/jboss-eap/standalone/deployments/prweb.war
-RUN chown -R pegauser.root /usr/local/jboss-eap
+#  Copy customized prweb files/dirs
+COPY prweb/ /opt/pega/prweb/
 
-#Installing dockerize for generating config files using templates
-RUN curl -sL https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz | tar zxf - -C /bin/
+# running in pegauser context
+# JBoss ownership and file permission
+RUN cd /usr/local && find ./jboss-eap -type d -exec chmod 0775 {} \;
+RUN cd /usr/local && find ./jboss-eap -type f -exec chmod 0660 {} \;
+RUN chmod -R 775 /usr/local/jboss-eap/bin
+RUN chmod 770 /scripts/docker-entrypoint.sh
+RUN chown -R pegauser.root /usr/local/jboss-eap /opt/pega/prweb /scripts/docker-entrypoint.sh
 
+# Originally from Tomcat...
 # Update access of required directories to allow not running in root for openshift
 # RUN chmod -R g+rw ${JBOSS_HOME}/logs  && \
 #     chmod -R g+rw ${JBOSS_HOME}/lib  && \
@@ -220,10 +222,6 @@ RUN curl -sL https://github.com/jwilder/dockerize/releases/download/v0.6.1/docke
 #     chmod -R g+w /search_index && \
 #     chown -R pegauser /search_index
 
-#running in pegauser context
-RUN chmod 770 /scripts/docker-entrypoint.sh
-RUN chown pegauser.root /scripts/docker-entrypoint.sh
-
 #switched the user to pegauser
 USER pegauser
 
@@ -232,6 +230,7 @@ CMD ["-b", "0.0.0.0"]
 
 # Expose required ports
 
+# Todo: Add JBoss Admin port if required
 # HTTP is 8080, JMX is 9001, prometheus is 9090, Hazelcast is 5701-5710, Ignite is 47100, REST for Kafka is 7003
 EXPOSE 8080 9001 9090 5701-5710 47100 7003
 

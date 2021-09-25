@@ -6,15 +6,56 @@
 	<env name="database/databases/PegaRULES/dataSource" value="java:comp/env/jdbc/PegaRULES"/>
 	<env name="database/databases/PegaDATA/dataSource" value="java:comp/env/jdbc/PegaRULES"/>
 
-	<!-- Pega search url -->
-	<env name="database/databases/pegasearch/searchEndpoint" value="http://pega-search"/>
+	{{ if .Env.PEGA_SEARCH_URL }}
+	<env name="database/databases/pegasearch/searchEndpoint" value="{{ .Env.PEGA_SEARCH_URL }}"/>
+	{{ end }}
 
-	<!-- Pega default -->
-	<!-- <env name="prconfig/session/ha/quiesce/strategy/shutdownquiesce" value="true" type="java.lang.String"/>
-	<env name="prconfig/session/ha/enabled" value="true" type="java.lang.String"/>
-	<env name="prconfig/dsm/services/stream/pyBaseLogPath" value="/opt/pega/kafkadata/data" type="java.lang.String"/>
-	<env name="prconfig/cloud/isNodeAgnosticAdminStudio" value="true" type="java.lang.String"/> -->
-	
+	<!-- Todo: Below env needs to be further tested for JBoss -->
+
+	{{ if .Env.PEGA_SEARCH_TYPE }}
+	<env name="database/databases/pegasearch/searchDeploymentType" value="{{ .Env.PEGA_SEARCH_TYPE }}"/>
+	{{ end }}
+
+	{{ if .Env.PEGA_STREAM_URL }}
+	<env name="services/stream/validate" value="true"/>
+	<env name="services/stream/provider" value="StreamService"/>
+	<env name="services/stream/provider_url" value="{{ .Env.PEGA_STREAM_URL }}"/>
+	{{ end }}
+
+	{{ if isTrue .Env.CASSANDRA_CLUSTER }}
+	<env name="dnode/external_cassandra_cluster" value="{{ .Env.CASSANDRA_CLUSTER }}"/>
+	<env name="dnode/external_cassandra_nodes" value="{{ default .Env.CASSANDRA_NODES "" }}"/>
+	<env name="dnode/external_cassandra_port" value="{{ default .Env.CASSANDRA_PORT "9042" }}"/>
+	<env name="dnode/cassandra_username" value="{{ default .Env.SECRET_CASSANDRA_USERNAME "dnode_ext" }}"/>
+	<env name="dnode/cassandra_password" value="{{ default .Env.SECRET_CASSANDRA_PASSWORD "dnode_ext" }}"/>
+	{{ end }}
+
+	{{ if isTrue .Env.CASSANDRA_CLIENT_ENCRYPTION}}
+	<env name="dnode/cassandra_client_encryption/enabled" value="{{ .Env.CASSANDRA_CLIENT_ENCRYPTION }}"/>
+	{{ if .Env.CASSANDRA_TRUSTSTORE -}}
+	<env name="dnode/cassandra_client_encryption/truststore" value="{{ .Env.CASSANDRA_TRUSTSTORE }}"/>
+	<env name="dnode/cassandra_client_encryption/truststore_password" value="{{ .Env.SECRET_CASSANDRA_TRUSTSTORE_PASSWORD }}"/>
+	{{- end }}
+	{{ if .Env.CASSANDRA_KEYSTORE -}}
+	<env name="dnode/cassandra_client_encryption/keystore" value="{{ .Env.CASSANDRA_KEYSTORE }}"/>
+	<env name="dnode/cassandra_client_encryption/keystore_password" value="{{.Env.SECRET_CASSANDRA_KEYSTORE_PASSWORD }}"/>
+	{{- end }}
+	{{ end }}
+
+	<env name="session/ha/quiesce/strategy/shutdownquiesce" value="true"/>
+	<env name="session/ha/enabled" value="true"/>
+	<env name="dsm/services/stream/pyBaseLogPath" value="/opt/pega/kafkadata/data"/>
+	<env name="cloud/isNodeAgnosticAdminStudio" value="true"/>
+
+	{{ if isTrue .Env.HZ_CLIENT_MODE }}
+	<env name="cluster/clientserver/clientmode" value="{{ .Env.HZ_CLIENT_MODE }}"/>
+	<env name="cluster/clientserver/hzOnK8s" value="{{ .Env.HZ_DISCOVERY_K8S }}"/>
+	<env name="identification/cluster/name" value="{{ .Env.HZ_CLUSTER_NAME }}"/>
+	<env name="cluster/clientserver/server/hostname" value="{{ .Env.HZ_SERVER_HOSTNAME }}"/>
+	<env name="cluster/clientserver/authentication/username" value="{{ .Env.SECRET_HZ_CS_AUTH_USERNAME }}"/>
+	<env name="cluster/clientserver/authentication/password" value="{{ .Env.SECRET_HZ_CS_AUTH_PASSWORD }}"/>
+	{{ end }}
+
 	<!-- The below setting is deprecated.
 	A new concept of node classification has been introduced which can be enabled by setting the nodetype via JVM argument, e.g. -DNodeType=BackgroundProcessing -->
 	<!--env name="initialization/nodeclassification" value="Agent" /  -->

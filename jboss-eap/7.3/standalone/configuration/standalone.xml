@@ -160,7 +160,7 @@
                 </datasource>
                 <datasource jta="false" jndi-name="java:/jdbc/PegaRULES" pool-name="PegaRULES" enabled="true" use-ccm="false">
                     <connection-url>{{ .Env.JDBC_URL }}</connection-url>
-                    <driver>postgresql</driver>
+                    <driver>{{ .Env.DB_TYPE_LONG }}</driver>
                     <pool>
                         <min-pool-size>30</min-pool-size>
                         <max-pool-size>100</max-pool-size>
@@ -179,7 +179,7 @@
                 </datasource>
                 <datasource jta="false" jndi-name="java:/jdbc/AdminPegaRULES" pool-name="AdminPegaRULES" enabled="true" use-ccm="false">
                     <connection-url>{{ .Env.JDBC_URL }}</connection-url>
-                    <driver>postgresql</driver>
+                    <driver>{{ .Env.DB_TYPE_LONG }}</driver>
                     <pool>
                         <min-pool-size>30</min-pool-size>
                         <max-pool-size>100</max-pool-size>
