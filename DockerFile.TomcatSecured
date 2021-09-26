@@ -1,0 +1,11 @@
+FROM docker.io/pegasystems/pega:8.5.4
+USER root
+# Use below for self-signed cert
+# COPY ./rootCA.crt /usr/local/share/ca-certificates/rootCA.crt
+# RUN /usr/sbin/update-ca-certificates
+# COPY ./keystore.p12 /usr/local/tomcat/conf/.keystore.p12
+# Use below for authorized cert
+COPY ./xxxdomain.com.p12 /usr/local/tomcat/conf/.keystore.p12
+RUN /bin/chown -R pegauser.root /usr/local/tomcat/conf/.keystore.p12
+RUN /bin/chmod -R 664 /usr/local/tomcat/conf/.keystore.p12
+USER pegauser
