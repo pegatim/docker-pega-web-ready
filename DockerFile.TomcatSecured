@@ -1,9 +1,8 @@
 FROM docker.io/pegatim/pega:8.7.0
 USER root
 # Use below for self-signed cert
-# COPY ./rootCA.crt /usr/local/share/ca-certificates/rootCA.crt
+# COPY ./localhostCA.pem /usr/local/share/ca-certificates/localhost.crt
 # RUN /usr/sbin/update-ca-certificates
-# COPY ./keystore.p12 /usr/local/tomcat/conf/.keystore.p12
 # Use below for authorized cert
 COPY ./keystore.p12 /usr/local/tomcat/conf/.keystore.p12
 RUN /bin/chown -R pegauser.root /usr/local/tomcat/conf/.keystore.p12
