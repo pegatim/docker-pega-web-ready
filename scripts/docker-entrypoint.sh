@@ -90,6 +90,19 @@ done
 
 echo "Using JDBC_URL: ${JDBC_URL}"
 
+# import certificates to jvm keystore
+for certfile in "${pega_root}/certs"/*
+do
+    echo "folder name: ${pega_root}/certs"
+    filename=$(basename "$certfile")
+    ext="${filename##*.}"
+    echo "$filename"
+    if [ "$ext" = "cer" ] || [ "$ext" = "pem" ] || [ "$ext" = "crt" ] || [ "$ext" = "der" ]; then
+      echo "${filename%.*}"cert
+      keytool -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias "${filename%.*}"cert -file $certfile
+    fi
+done
+
 # Unset INDEX_DIRECTORY if set to NONE
 if [ "NONE" = "${INDEX_DIRECTORY}" ]; then
     export INDEX_DIRECTORY=
@@ -110,7 +123,7 @@ shopt -u nocasematch
 # Various checks surrounding the use of our NodeTypes
 for i in ${NODE_TYPE//,/ }; do
   if [[ "$i" =~ ^(DDS|Universal)$ ]]; then
-    echo "NODE_TYPE ($1) IS NOT SUPPORTED BY THIS IMAGE."
+    echo "NODE_TYPE ($i) IS NOT SUPPORTED BY THIS IMAGE."
     exit 1
   elif [[ "$i" =~ ^Stream$ ]]; then
 
