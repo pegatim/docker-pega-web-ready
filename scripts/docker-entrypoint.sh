@@ -29,6 +29,13 @@ mkdir -p $config_root
 secret_root="${pega_root}/secrets"
 mkdir -p $secret_root
 
+tls_cert_root="${pega_root}/tomcatcertsmount"
+mkdir -p $tls_cert_root
+
+tomcat_cert_root="${pega_root}/tomcatcerts"
+mkdir -p $tomcat_cert_root
+
+
 prlog4j2="${config_root}/prlog4j2.xml"
 prconfig="${config_root}/prconfig.xml"
 context_xml="${config_root}/context.xml"
@@ -50,6 +57,29 @@ pega_diagnostic_password_file="${secret_root}/PEGA_DIAGNOSTIC_PASSWORD"
 hazelcast_username_file="${secret_root}/HZ_CS_AUTH_USERNAME"
 hazelcast_password_file="${secret_root}/HZ_CS_AUTH_PASSWORD"
 
+custom_artifactory_username_file="${secret_root}/CUSTOM_ARTIFACTORY_USERNAME"
+custom_artifactory_password_file="${secret_root}/CUSTOM_ARTIFACTORY_PASSWORD"
+custom_artifactory_apikey_header_file="${secret_root}/CUSTOM_ARTIFACTORY_APIKEY_HEADER"
+custom_artifactory_apikey_file="${secret_root}/CUSTOM_ARTIFACTORY_APIKEY"
+
+#tomcat ssl certs
+tomcat_keystore_password_file="${tls_cert_root}/TOMCAT_KEYSTORE_PASSWORD"
+tomcat_keystore_file="${tls_cert_root}/TOMCAT_KEYSTORE_CONTENT"
+
+if [ -e "$tomcat_keystore_password_file" ]; then
+   export TOMCAT_KEYSTORE_PASSWORD=$(<${tomcat_keystore_password_file})
+else
+   export TOMCAT_KEYSTORE_PASSWORD=${TOMCAT_KEYSTORE_PASSWORD}
+fi
+
+if [ -e "$tomcat_keystore_file" ]; then
+  echo "TLS certificate for tomcat exists"
+  cat ${tomcat_keystore_file} | xargs printf '%b\n' | base64 --decode > "${tomcat_cert_root}/tlskeystore.jks"
+  export TOMCAT_KEYSTORE_DIR="${tomcat_cert_root}/tlskeystore.jks"
+else
+  echo "TLS certificate does not exist"
+fi
+
 # Define the JDBC_URL variable based on inputs
 if [ "$JDBC_URL" == "" ]; then
   echo "JDBC_URL must be specified.";
@@ -60,7 +90,86 @@ if [ "$JDBC_CLASS" == "" ]; then
   exit 1
 fi
 
+if [ -e "$custom_artifactory_username_file" ]; then
+   export SECRET_CUSTOM_ARTIFACTORY_USERNAME=$(<${custom_artifactory_username_file})
+else
+   export SECRET_CUSTOM_ARTIFACTORY_USERNAME=${CUSTOM_ARTIFACTORY_USERNAME}
+fi
+
+if [ -e "$custom_artifactory_password_file" ]; then
+   export SECRET_CUSTOM_ARTIFACTORY_PASSWORD=$(<${custom_artifactory_password_file})
+else
+   export SECRET_CUSTOM_ARTIFACTORY_PASSWORD=${CUSTOM_ARTIFACTORY_PASSWORD}
+fi
+
+if [ -e "$custom_artifactory_apikey_header_file" ]; then
+   export SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER=$(<${custom_artifactory_apikey_header_file})
+else
+   export SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER=${CUSTOM_ARTIFACTORY_APIKEY_HEADER}
+fi
+
+if [ -e "$custom_artifactory_apikey_file" ]; then
+   export SECRET_CUSTOM_ARTIFACTORY_APIKEY=$(<${custom_artifactory_apikey_file})
+else
+   export SECRET_CUSTOM_ARTIFACTORY_APIKEY=${CUSTOM_ARTIFACTORY_APIKEY}
+fi
+
+custom_artifactory_auth=""
+if [ "$SECRET_CUSTOM_ARTIFACTORY_USERNAME" != "" ] || [ "$SECRET_CUSTOM_ARTIFACTORY_PASSWORD" != "" ]; then
+    if [ "$SECRET_CUSTOM_ARTIFACTORY_USERNAME" == "" ] || [ "$SECRET_CUSTOM_ARTIFACTORY_PASSWORD" == "" ]; then
+        echo "SECRET_CUSTOM_ARTIFACTORY_USERNAME & SECRET_CUSTOM_ARTIFACTORY_PASSWORD must be specified for basic authentication for custom artifactory."
+        exit 1
+    else
+        echo "Using basic authentication for custom artifactory to download JDBC driver."
+        custom_artifactory_auth="-u "$SECRET_CUSTOM_ARTIFACTORY_USERNAME":"$SECRET_CUSTOM_ARTIFACTORY_PASSWORD
+    fi
+fi
+
+if [[ "$custom_artifactory_auth" == "" && ( "$SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER" != "" || "$SECRET_CUSTOM_ARTIFACTORY_APIKEY" != "" ) ]]; then
+    if [ "$SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER" == "" ] || [ "$SECRET_CUSTOM_ARTIFACTORY_APIKEY" == "" ]; then
+        echo "SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER & SECRET_CUSTOM_ARTIFACTORY_APIKEY must be specified for authentication using api key for custom artifactory."
+        exit 1
+    else
+        echo "Using API key for authentication of custom artifactory to download JDBC driver."
+        custom_artifactory_auth="-H "$SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER":"$SECRET_CUSTOM_ARTIFACTORY_APIKEY
+    fi
+fi
+
+custom_artifactory_certificate=''
+if [ "$(ls -A "${pega_root}/artifactory/cert"/*)" ]; then
+     if [ "$(ls "${pega_root}/artifactory/cert"/* | wc -l)" == 1 ]; then
+       echo "Certificate is provided for custom artifactory's domain ssl verification."
+       # get certificate name
+       for certfile in "${pega_root}/artifactory/cert"/*
+        do
+           echo "folder name: ${pega_root}/artifactory/cert"
+           filename=$(basename "$certfile")
+           ext="${filename##*.}"
+           echo "$filename"
+           if [ "$ext" = "cer" ] || [ "$ext" = "pem" ] || [ "$ext" = "crt" ] || [ "$ext" = "der" ]; then
+              echo "$certfile"
+              custom_artifactory_certificate="--cacert "$certfile
+           else
+              echo "curl needs valid format certificate file for ssl verification."
+              exit 1
+           fi
+        done
+     else
+       echo "Provide one certificate file. The file may contain multiple CA certificates."
+       exit 1
+     fi
+fi
+
 if [ "$JDBC_DRIVER_URI" != "" ]; then
+  curl_cmd_options=''
+  if [ "$ENABLE_CUSTOM_ARTIFACTORY_SSL_VERIFICATION" == true ]; then
+    echo "Establishing a secure connection to download driver."
+    curl_cmd_options="curl -sSL $custom_artifactory_auth $custom_artifactory_certificate"
+  else
+    echo "Establishing an insecure connection to download driver."
+    curl_cmd_options="curl -ksSL $custom_artifactory_auth"
+  fi
+
   urls=$(echo $JDBC_DRIVER_URI | tr "," "\n")
   for url in $urls
     do
@@ -68,9 +177,9 @@ if [ "$JDBC_DRIVER_URI" != "" ]; then
      jarabsurl="$(cut -d'?' -f1 <<<"$url")"
      echo "$jarabsurl"
      filename=$(basename $jarabsurl)
-     if curl -ksSL --output /dev/null --silent --fail -r 0-0 $url
+     if $curl_cmd_options --output /dev/null --silent --fail -r 0-0 $url
      then
-       curl -ksSL -o ${lib_root}/$filename ${url}
+       $curl_cmd_options -o ${lib_root}/$filename ${url}
      else
        echo "Could not download jar from ${url}"
        exit 1
@@ -221,6 +330,11 @@ fi
 if [ -e "${server_xml}" ]; then
   echo "Loading server.xml from ${server_xml}...";
   cp "${server_xml}" "${CATALINA_HOME}/conf/"
+elif [ -e "${config_root}/server.xml.tmpl" ]; then
+  #server.xml.tmpl
+  echo "No server.xml was specified in ${server_xml}.  Generating from templates."
+  cp ${config_root}/server.xml.tmpl ${CATALINA_HOME}/conf/server.xml.tmpl
+  /bin/dockerize -template ${CATALINA_HOME}/conf/server.xml.tmpl:${CATALINA_HOME}/conf/server.xml
 else
   echo "No server.xml was specified in ${server_xml}. Using defaults."
 fi
@@ -286,9 +400,11 @@ fi
 
 rm ${CATALINA_HOME}/conf/context.xml.tmpl
 rm ${CATALINA_HOME}/conf/tomcat-users.xml.tmpl
+rm ${CATALINA_HOME}/conf/server.xml.tmpl
 
 
-unset DB_USERNAME DB_PASSWORD SECRET_DB_USERNAME SECRET_DB_PASSWORD CASSANDRA_USERNAME CASSANDRA_PASSWORD SECRET_CASSANDRA_USERNAME SECRET_CASSANDRA_PASSWORD PEGA_DIAGNOSTIC_USER PEGA_DIAGNOSTIC_PASSWORD SECRET_PEGA_DIAGNOSTIC_USER SECRET_PEGA_DIAGNOSTIC_PASSWORD PEGA_APP_CONTEXT_ROOT HZ_CS_AUTH_USERNAME SECRET_HZ_CS_AUTH_USERNAME HZ_CS_AUTH_PASSWORD SECRET_HZ_CS_AUTH_PASSWORD CASSANDRA_TRUSTSTORE_PASSWORD SECRET_CASSANDRA_TRUSTSTORE_PASSWORD CASSANDRA_KEYSTORE_PASSWORD SECRET_CASSANDRA_KEYSTORE_PASSWORD
+unset DB_USERNAME DB_PASSWORD SECRET_DB_USERNAME SECRET_DB_PASSWORD CASSANDRA_USERNAME CASSANDRA_PASSWORD SECRET_CASSANDRA_USERNAME SECRET_CASSANDRA_PASSWORD PEGA_DIAGNOSTIC_USER PEGA_DIAGNOSTIC_PASSWORD SECRET_PEGA_DIAGNOSTIC_USER SECRET_PEGA_DIAGNOSTIC_PASSWORD PEGA_APP_CONTEXT_ROOT HZ_CS_AUTH_USERNAME SECRET_HZ_CS_AUTH_USERNAME HZ_CS_AUTH_PASSWORD SECRET_HZ_CS_AUTH_PASSWORD CASSANDRA_TRUSTSTORE_PASSWORD SECRET_CASSANDRA_TRUSTSTORE_PASSWORD CASSANDRA_KEYSTORE_PASSWORD SECRET_CASSANDRA_KEYSTORE_PASSWORD SECRET_CUSTOM_ARTIFACTORY_USERNAME SECRET_CUSTOM_ARTIFACTORY_PASSWORD CUSTOM_ARTIFACTORY_USERNAME CUSTOM_ARTIFACTORY_PASSWORD SECRET_CUSTOM_ARTIFACTORY_APIKEY_HEADER SECRET_CUSTOM_ARTIFACTORY_APIKEY CUSTOM_ARTIFACTORY_APIKEY_HEADER CUSTOM_ARTIFACTORY_APIKEY ENABLE_CUSTOM_ARTIFACTORY_SSL_VERIFICATION TOMCAT_KEYSTORE_PASSWORD
+
 
 unset pega_root lib_root config_root
 
